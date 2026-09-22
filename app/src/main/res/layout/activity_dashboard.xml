@@ -99,7 +99,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentStart="true"
-                        android:text="Research Essay"
+                        android:text="No assignments due soon"
                         android:textColor="#333333"
                         android:textSize="15sp" />
 
@@ -107,7 +107,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentEnd="true"
-                        android:text="Due tomorrow"
+                        android:text="Add an assignment to get started"
                         android:textColor="#E53935"
                         android:textSize="15sp" />
                 </RelativeLayout>
@@ -116,7 +116,8 @@
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp">
+                    android:layout_marginBottom="12dp"
+                    android:visibility="gone">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -138,7 +139,8 @@
                 <!-- OPSC Y6312 POE -->
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:visibility="gone">
 
                     <TextView
                         android:layout_width="wrap_content"
