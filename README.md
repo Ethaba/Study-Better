@@ -311,6 +311,8 @@ Study-Better
 
 <img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/8106f37f-212b-4f15-a88d-d1eac204f438" />
 
+The API was coded in C# using Visual Studio 
+
 
 ## 14. Demonstration Video
 
