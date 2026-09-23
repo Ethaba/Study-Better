@@ -362,8 +362,16 @@ Possible improvements for future versions of Study Better include:
 
 
 ---
+## 18. AI Usage Statement
 
-## 18. References
+AI tools were used during the development of the Study Better application as a supporting resource. They were mainly used to help explain unfamiliar Android Studio and Kotlin concepts, identify programming errors, assist with debugging, and suggest possible solutions when problems occurred during development.
+
+AI assistance was also used to help understand API integration, Retrofit, testing and GitHub Actions. The generated suggestions were reviewed and adapted to the requirements of the application before being implemented.
+
+The final application was tested by running the application on an Android device, testing its main functions and running the project's unit tests. GitHub Actions was also used to automatically build and test the project.
+
+
+## 19. References
 
 Android Developers. (n.d.). *Develop Android apps with Kotlin*. Available at: https://developer.android.com/kotlin (Accessed: 23 September 2026).
 
