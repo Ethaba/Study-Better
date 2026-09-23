@@ -304,6 +304,12 @@ Study-Better
 ```
 
 ---
+## API Creation Proof
+
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/029dc1d8-4c6c-490f-9018-506cbdb25a32" />
+
+
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/8106f37f-212b-4f15-a88d-d1eac204f438" />
 
 
 ## 14. Demonstration Video
