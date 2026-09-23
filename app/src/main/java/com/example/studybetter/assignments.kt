@@ -50,7 +50,17 @@ class assignments : AppCompatActivity() {
         val filteredAssignments = when (selectedFilter) {
             "Completed" -> allAssignments.filter { it.progress == 100 }
             "Upcoming" -> allAssignments.filter { it.progress < 100 }
-            "Due soon" -> allAssignments.filter { it.priority == "High" && it.progress < 100 }
+            "Due soon" -> {
+                val now = System.currentTimeMillis()
+                val sevenDaysFromNow =
+                    now + (7L * 24 * 60 * 60 * 1000)
+
+                allAssignments.filter {
+                    it.progress < 100 &&
+                            it.dueDateMillis >= now &&
+                            it.dueDateMillis <= sevenDaysFromNow
+                }
+            }
             else -> allAssignments
         }.sortedBy { it.dueDateMillis }
 

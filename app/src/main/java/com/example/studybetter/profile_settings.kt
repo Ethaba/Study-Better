@@ -2,6 +2,7 @@ package com.example.studybetter
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.InputType
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
@@ -9,122 +10,389 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 
 class profile_settings : AppCompatActivity() {
+
+    private lateinit var preferences: android.content.SharedPreferences
+
+    private lateinit var nameText: TextView
+    private lateinit var emailText: TextView
+    private lateinit var levelText: TextView
+    private lateinit var languageText: TextView
+    private lateinit var notificationsText: TextView
+    private lateinit var themeText: TextView
+    private lateinit var syncStatusText: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_profile_settings)
 
-        val preferences = getSharedPreferences("study_better_settings", MODE_PRIVATE)
-        val languageText = findViewById<TextView>(R.id.tv_current_language)
-        val notificationsText = findViewById<TextView>(R.id.tv_notifications_status)
-        val nameText = findViewById<TextView>(R.id.tv_full_name)
-        val levelText = findViewById<TextView>(R.id.tv_level)
+        preferences = getSharedPreferences(
+            "study_better_settings",
+            MODE_PRIVATE
+        )
 
-        languageText.text = preferences.getString("language", "English")
-        notificationsText.text = if (preferences.getBoolean("notifications", true)) "On" else "Off"
-        nameText.text = preferences.getString("full_name", "Student")
-        levelText.text = "Study goal: ${preferences.getInt("study_goal", 0)} minutes"
+        nameText = findViewById(R.id.tv_full_name)
+        emailText = findViewById(R.id.tv_email)
+        levelText = findViewById(R.id.tv_level)
+        languageText = findViewById(R.id.tv_current_language)
+        notificationsText = findViewById(R.id.tv_notifications_status)
+        themeText = findViewById(R.id.tv_current_theme)
+        syncStatusText = findViewById(R.id.tv_sync_status)
 
-        findViewById<android.view.View>(R.id.btn_back).setOnClickListener { finish() }
+        loadProfile()
 
-        findViewById<android.view.View>(R.id.row_edit_profile).setOnClickListener {
-            editName(nameText)
-        }
-
-        findViewById<android.view.View>(R.id.row_study_goal).setOnClickListener {
-            editStudyGoal(levelText)
-        }
-
-        findViewById<android.view.View>(R.id.row_language).setOnClickListener {
-            chooseLanguage(languageText)
-        }
-
-        findViewById<android.view.View>(R.id.row_theme).setOnClickListener {
-            Toast.makeText(this, "Dark mode is coming soon", Toast.LENGTH_SHORT).show()
-        }
-
-        findViewById<android.view.View>(R.id.row_notifications).setOnClickListener {
-            val notificationsEnabled = !preferences.getBoolean("notifications", true)
-            preferences.edit().putBoolean("notifications", notificationsEnabled).apply()
-            notificationsText.text = if (notificationsEnabled) "On" else "Off"
-        }
-
-        findViewById<android.view.View>(R.id.row_sync).setOnClickListener {
-            Toast.makeText(this, "No account is connected yet", Toast.LENGTH_SHORT).show()
-        }
-
-        findViewById<android.view.View>(R.id.row_logout).setOnClickListener {
-            confirmLogout()
-        }
-    }
-
-    private fun chooseLanguage(languageText: TextView) {
-        val languages = arrayOf("English", "isiZulu", "isiXhosa")
-        AlertDialog.Builder(this)
-            .setTitle("Choose language")
-            .setItems(languages) { _, selectedIndex ->
-                val selectedLanguage = languages[selectedIndex]
-                getSharedPreferences("study_better_settings", MODE_PRIVATE)
-                    .edit()
-                    .putString("language", selectedLanguage)
-                    .apply()
-                languageText.text = selectedLanguage
+        findViewById<android.view.View>(R.id.btn_back)
+            .setOnClickListener {
+                finish()
             }
-            .show()
+
+        findViewById<android.view.View>(R.id.row_edit_profile)
+            .setOnClickListener {
+                editName()
+            }
+
+        findViewById<android.view.View>(R.id.row_study_goal)
+            .setOnClickListener {
+                editStudyGoal()
+            }
+
+        findViewById<android.view.View>(R.id.row_language)
+            .setOnClickListener {
+                showLanguageMessage()
+            }
+
+        findViewById<android.view.View>(R.id.row_theme)
+            .setOnClickListener {
+                showThemeMessage()
+            }
+
+        findViewById<android.view.View>(R.id.row_notifications)
+            .setOnClickListener {
+                toggleNotifications()
+            }
+
+        findViewById<android.view.View>(R.id.row_sync)
+            .setOnClickListener {
+                showSyncStatus()
+            }
+
+        findViewById<android.view.View>(R.id.row_logout)
+            .setOnClickListener {
+                confirmLogout()
+            }
     }
 
-    private fun editName(nameText: TextView) {
+    override fun onResume() {
+        super.onResume()
+        loadProfile()
+    }
+
+    private fun loadProfile() {
+
+        val fullName = preferences.getString(
+            "full_name",
+            "Student"
+        ) ?: "Student"
+
+        val email = preferences.getString(
+            "email",
+            "No account connected"
+        ) ?: "No account connected"
+
+        val language = preferences.getString(
+            "language",
+            "English"
+        ) ?: "English"
+
+        val theme = preferences.getString(
+            "theme",
+            "Light"
+        ) ?: "Light"
+
+        val notificationsEnabled =
+            preferences.getBoolean(
+                "notifications",
+                true
+            )
+
+        val studyGoal = preferences.getInt(
+            "study_goal",
+            60
+        )
+
+        val assignments =
+            AssignmentStorage.getAssignments(this)
+
+        val completedAssignments =
+            assignments.count {
+                it.progress == 100
+            }
+
+        val level =
+            1 + (completedAssignments / 3)
+
+        nameText.text = fullName
+        emailText.text = email
+        levelText.text = "Level $level"
+
+        languageText.text = language
+
+        themeText.text = theme
+
+        notificationsText.text =
+            if (notificationsEnabled) {
+                "On"
+            } else {
+                "Off"
+            }
+
+        syncStatusText.text = "Connected"
+        syncStatusText.setTextColor(
+            android.graphics.Color.rgb(67, 160, 71)
+        )
+    }
+
+    private fun editName() {
+
         val nameInput = EditText(this)
-        nameInput.setText(nameText.text)
+
+        nameInput.setText(
+            preferences.getString(
+                "full_name",
+                ""
+            )
+        )
+
+        nameInput.inputType =
+            InputType.TYPE_CLASS_TEXT or
+                    InputType.TYPE_TEXT_FLAG_CAP_WORDS
 
         AlertDialog.Builder(this)
             .setTitle("Edit profile")
             .setMessage("Enter your full name")
             .setView(nameInput)
             .setPositiveButton("Save") { _, _ ->
-                val fullName = nameInput.text.toString().trim()
-                if (fullName.isNotEmpty()) {
-                    getSharedPreferences("study_better_settings", MODE_PRIVATE)
-                        .edit().putString("full_name", fullName).apply()
+
+                val fullName =
+                    nameInput.text.toString().trim()
+
+                if (fullName.isEmpty()) {
+
+                    Toast.makeText(
+                        this,
+                        "Please enter your full name",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                } else {
+
+                    preferences.edit()
+                        .putString(
+                            "full_name",
+                            fullName
+                        )
+                        .apply()
+
                     nameText.text = fullName
+
+                    Toast.makeText(
+                        this,
+                        "Profile updated",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(
+                "Cancel",
+                null
+            )
             .show()
     }
 
-    private fun editStudyGoal(levelText: TextView) {
+    private fun editStudyGoal() {
+
         val goalInput = EditText(this)
-        goalInput.inputType = android.text.InputType.TYPE_CLASS_NUMBER
+
+        goalInput.inputType =
+            InputType.TYPE_CLASS_NUMBER
+
         goalInput.hint = "Minutes per day"
+
+        goalInput.setText(
+            preferences.getInt(
+                "study_goal",
+                60
+            ).toString()
+        )
 
         AlertDialog.Builder(this)
             .setTitle("Study goal")
-            .setMessage("How many minutes would you like to study each day?")
+            .setMessage(
+                "How many minutes would you like to study each day?"
+            )
             .setView(goalInput)
             .setPositiveButton("Save") { _, _ ->
-                val minutes = goalInput.text.toString().toIntOrNull()
-                if (minutes == null || minutes <= 0) {
-                    Toast.makeText(this, "Enter a valid number of minutes", Toast.LENGTH_SHORT).show()
+
+                val minutes =
+                    goalInput.text
+                        .toString()
+                        .toIntOrNull()
+
+                if (
+                    minutes == null ||
+                    minutes <= 0
+                ) {
+
+                    Toast.makeText(
+                        this,
+                        "Enter a valid number of minutes",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
                 } else {
-                    getSharedPreferences("study_better_settings", MODE_PRIVATE)
-                        .edit().putInt("study_goal", minutes).apply()
-                    levelText.text = "Study goal: $minutes minutes"
+
+                    preferences.edit()
+                        .putInt(
+                            "study_goal",
+                            minutes
+                        )
+                        .apply()
+
+                    Toast.makeText(
+                        this,
+                        "Study goal updated",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(
+                "Cancel",
+                null
+            )
+            .show()
+    }
+
+    private fun showLanguageMessage() {
+
+        AlertDialog.Builder(this)
+            .setTitle("Language")
+            .setMessage(
+                "Additional languages will be available in a future version."
+            )
+            .setPositiveButton(
+                "OK",
+                null
+            )
+            .show()
+    }
+
+    private fun showThemeMessage() {
+
+        AlertDialog.Builder(this)
+            .setTitle("Theme")
+            .setMessage(
+                "Dark mode is coming soon. Study Better currently uses Light mode."
+            )
+            .setPositiveButton(
+                "OK",
+                null
+            )
+            .show()
+    }
+
+    private fun toggleNotifications() {
+
+        val currentValue =
+            preferences.getBoolean(
+                "notifications",
+                true
+            )
+
+        val newValue = !currentValue
+
+        preferences.edit()
+            .putBoolean(
+                "notifications",
+                newValue
+            )
+            .apply()
+
+        notificationsText.text =
+            if (newValue) {
+                "On"
+            } else {
+                "Off"
+            }
+
+        Toast.makeText(
+            this,
+            if (newValue) {
+                "Notifications enabled"
+            } else {
+                "Notifications disabled"
+            },
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
+    private fun showSyncStatus() {
+
+        AlertDialog.Builder(this)
+            .setTitle("Synchronization")
+            .setMessage(
+                "Your account is connected to the Study Better API. " +
+                        "Account authentication is currently active."
+            )
+            .setPositiveButton(
+                "OK",
+                null
+            )
             .show()
     }
 
     private fun confirmLogout() {
+
         AlertDialog.Builder(this)
             .setTitle("Log out")
-            .setMessage("Are you sure you want to log out?")
-            .setPositiveButton("Log out") { _, _ ->
-                val loginIntent = Intent(this, login::class.java)
-                loginIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            .setMessage(
+                "Are you sure you want to log out?"
+            )
+            .setPositiveButton(
+                "Log out"
+            ) { _, _ ->
+
+                /*
+                 * Clear authentication data so another
+                 * user cannot access the previous session.
+                 */
+                preferences.edit()
+                    .remove("full_name")
+                    .remove("email")
+                    .remove("token")
+                    .remove("user_id")
+                    .apply()
+
+                val loginIntent =
+                    Intent(
+                        this,
+                        login::class.java
+                    )
+
+                loginIntent.flags =
+                    Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK
+
                 startActivity(loginIntent)
+
+                Toast.makeText(
+                    this,
+                    "Logged out successfully",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(
+                "Cancel",
+                null
+            )
             .show()
     }
 }

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Selected item -->
+    <item android:color="@color/primary" android:state_checked="true" />
+    <!-- Also cover state_selected just in case -->
+    <item android:color="@color/primary" android:state_selected="true" />
+    <!-- Unselected -->
+    <item android:color="@color/bottom_nav_unselected" />
+</selector>

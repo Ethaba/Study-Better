@@ -4,8 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FFFFFF"
-    android:paddingBottom="24dp">
+    android:background="#FFFFFF">
 
     <!-- Toolbar -->
     <RelativeLayout
@@ -16,12 +15,14 @@
 
         <ImageButton
             android:id="@+id/btn_back"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_arrow_back"
             android:contentDescription="Back"
+            android:padding="10dp"
             app:tint="#000000" />
 
         <TextView
@@ -32,6 +33,7 @@
             android:textColor="#000000"
             android:textSize="22sp"
             android:textStyle="bold" />
+
     </RelativeLayout>
 
     <ScrollView
@@ -39,6 +41,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:fillViewport="true"
+        android:clipToPadding="false"
         android:paddingStart="24dp"
         android:paddingEnd="24dp">
 
@@ -48,66 +51,73 @@
             android:orientation="vertical"
             android:gravity="center_horizontal"
             android:paddingTop="8dp"
-            android:paddingBottom="16dp">
+            android:paddingBottom="32dp">
 
             <!-- Current Task -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
                 android:text="Current Task"
                 android:textColor="#666666"
-                android:textSize="14sp"
-                android:layout_marginBottom="4dp" />
+                android:textSize="14sp" />
 
             <TextView
                 android:id="@+id/tv_current_task"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:ellipsize="end"
+                android:maxLines="2"
                 android:text="No task selected"
                 android:textColor="#111111"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="32dp" />
+                android:textStyle="bold" />
 
-            <!-- Timer / Stopwatch Visual -->
+            <!-- Timer -->
+            <!-- Timer -->
             <FrameLayout
                 android:layout_width="220dp"
                 android:layout_height="220dp"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="36dp">
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="28dp">
 
-                <!-- Circular Progress (shows remaining time) -->
+                <!-- Circular Progress -->
                 <com.google.android.material.progressindicator.CircularProgressIndicator
                     android:id="@+id/progress_timer"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:progress="100"
+                    android:layout_width="220dp"
+                    android:layout_height="220dp"
+                    android:layout_gravity="center"
+                    android:progress="0"
                     app:indicatorSize="220dp"
                     app:trackThickness="12dp"
                     app:indicatorColor="#26C6DA"
                     app:trackColor="#E0E0E0"
                     app:indicatorDirectionCircular="clockwise" />
 
-                <!-- Digital Time -->
+                <!-- Timer Text -->
                 <TextView
                     android:id="@+id/tv_timer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:includeFontPadding="false"
+                    android:fontFamily="monospace"
                     android:text="60:00"
                     android:textColor="#111111"
-                    android:textSize="42sp"
-                    android:textStyle="bold"
-                    android:fontFamily="monospace" />
+                    android:textSize="38sp"
+                    android:textStyle="bold" />
+
             </FrameLayout>
 
             <!-- Control Buttons -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:layout_marginBottom="4dp"
                 android:gravity="center"
-                android:layout_marginBottom="8dp">
+                android:orientation="horizontal">
 
                 <!-- Pause -->
                 <LinearLayout
@@ -121,11 +131,11 @@
                         android:id="@+id/btn_pause"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:contentDescription="Pause"
                         android:src="@drawable/ic_pause"
                         app:backgroundTint="#90CAF9"
-                        app:tint="#FFFFFF"
                         app:fabSize="normal"
-                        android:contentDescription="Pause" />
+                        app:tint="#FFFFFF" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -134,6 +144,7 @@
                         android:text="Pause"
                         android:textColor="#333333"
                         android:textSize="14sp" />
+
                 </LinearLayout>
 
                 <!-- Start -->
@@ -148,11 +159,11 @@
                         android:id="@+id/btn_start"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:contentDescription="Start"
                         android:src="@drawable/ic_play_arrow"
                         app:backgroundTint="#42A5F5"
-                        app:tint="#FFFFFF"
                         app:fabSize="normal"
-                        android:contentDescription="Start" />
+                        app:tint="#FFFFFF" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -161,6 +172,7 @@
                         android:text="Start"
                         android:textColor="#333333"
                         android:textSize="14sp" />
+
                 </LinearLayout>
 
                 <!-- Stop -->
@@ -175,11 +187,11 @@
                         android:id="@+id/btn_stop"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:contentDescription="Stop"
                         android:src="@drawable/ic_stop"
                         app:backgroundTint="#212121"
-                        app:tint="#FFFFFF"
                         app:fabSize="normal"
-                        android:contentDescription="Stop" />
+                        app:tint="#FFFFFF" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -188,44 +200,47 @@
                         android:text="Stop"
                         android:textColor="#333333"
                         android:textSize="14sp" />
+
                 </LinearLayout>
+
             </LinearLayout>
 
             <!-- Session Progress -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="36dp"
+                android:layout_marginTop="28dp"
+                android:layout_marginBottom="8dp"
                 android:text="Session Progress"
                 android:textColor="#111111"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="8dp" />
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tv_session_progress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="0 min / 60 min"
                 android:textColor="#666666"
-                android:textSize="15sp"
-                android:layout_marginBottom="12dp" />
+                android:textSize="15sp" />
 
             <com.google.android.material.slider.Slider
                 android:id="@+id/slider_session_progress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:enabled="false"
+                android:value="0"
                 android:valueFrom="0"
                 android:valueTo="60"
                 android:stepSize="1"
-                android:value="0"
-                android:enabled="false"
                 app:thumbColor="#111111"
                 app:trackColorActive="#111111"
                 app:trackColorInactive="#E0E0E0"
                 app:trackHeight="4dp" />
 
         </LinearLayout>
+
     </ScrollView>
 
 </LinearLayout>

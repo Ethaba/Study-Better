@@ -86,8 +86,8 @@
         <!-- More options (Rename / Delete / Change Icon) -->
         <ImageButton
             android:id="@+id/btn_more"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_more_vert"
             android:contentDescription="More options"

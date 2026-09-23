@@ -10,54 +10,63 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:paddingStart="20dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="24dp">
 
         <!-- Header -->
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp">
+            android:layout_height="56dp"
+            android:layout_marginBottom="4dp">
 
-            <!-- Hamburger Menu -->
             <ImageView
                 android:id="@+id/menu_icon"
-                android:layout_width="28dp"
-                android:layout_height="28dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
-                android:src="@drawable/ic_menu"
-                android:contentDescription="Open menu"
                 android:clickable="true"
-                android:focusable="true" />
+                android:contentDescription="Open menu"
+                android:focusable="true"
+                android:padding="10dp"
+                android:src="@drawable/ic_menu" />
 
-            <!-- Dynamic User Greeting (set full name programmatically) -->
             <TextView
                 android:id="@+id/tv_greeting"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
                 android:layout_toEndOf="@id/menu_icon"
-                android:layout_marginStart="12dp"
+                android:layout_toStartOf="@id/notification_bell"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
                 android:text="Hi, User!"
                 android:textColor="#000000"
-                android:textSize="24sp"
+                android:textSize="22sp"
                 android:textStyle="bold" />
 
             <ImageView
                 android:id="@+id/notification_bell"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:src="@drawable/ic_notifications_none"
-                android:contentDescription="Notifications" />
+                android:contentDescription="Notifications"
+                android:padding="10dp"
+                android:src="@drawable/ic_notifications_none" />
+
         </RelativeLayout>
 
         <!-- Subtitle -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="48dp"
             android:layout_marginBottom="20dp"
-            android:layout_margin="20dp"
             android:text="Keep learning, keep growing."
             android:textColor="#666666"
             android:textSize="15sp" />
@@ -67,9 +76,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="16dp"
             app:cardElevation="2dp"
-            app:cardBackgroundColor="#FFFFFF"
             app:strokeColor="#E0E0E0"
             app:strokeWidth="1dp">
 
@@ -78,7 +87,6 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="20dp">
-
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -89,76 +97,32 @@
                     android:textSize="17sp"
                     android:textStyle="bold" />
 
-                <!-- Research Essay -->
-                <RelativeLayout
+                <LinearLayout
+                    android:id="@+id/ll_due_soon"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp">
+                    android:gravity="center_vertical"
+                    android:orientation="vertical">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
                         android:text="No assignments due soon"
                         android:textColor="#333333"
                         android:textSize="15sp" />
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
+                        android:layout_marginTop="4dp"
                         android:text="Add an assignment to get started"
                         android:textColor="#E53935"
-                        android:textSize="15sp" />
-                </RelativeLayout>
+                        android:textSize="14sp" />
 
-                <!-- Programming Quiz -->
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="12dp"
-                    android:visibility="gone">
+                </LinearLayout>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:text="Programming Quiz"
-                        android:textColor="#333333"
-                        android:textSize="15sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:text="Due in 2 days"
-                        android:textColor="#555555"
-                        android:textSize="15sp" />
-                </RelativeLayout>
-
-                <!-- OPSC Y6312 POE -->
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="gone">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:text="OPSCY6312 POE"
-                        android:textColor="#333333"
-                        android:textSize="15sp" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:text="Due in 4 days"
-                        android:textColor="#555555"
-                        android:textSize="15sp" />
-                </RelativeLayout>
             </LinearLayout>
+
         </androidx.cardview.widget.CardView>
 
         <!-- Today's Progress + Study Streak -->
@@ -166,27 +130,25 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:orientation="horizontal"
-            android:weightSum="2">
+            android:orientation="horizontal">
 
             <!-- Today's Progress Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
+                android:layout_marginEnd="6dp"
                 android:layout_weight="1"
+                app:cardBackgroundColor="#FFFFFF"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
-                app:cardBackgroundColor="#FFFFFF"
                 app:strokeColor="#E0E0E0"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="14dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -194,56 +156,58 @@
                         android:layout_marginBottom="12dp"
                         android:text="Today's Progress"
                         android:textColor="#000000"
-                        android:textSize="15sp"
+                        android:textSize="14sp"
                         android:textStyle="bold" />
 
-                    <RelativeLayout
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="56dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
                         <TextView
                             android:id="@+id/tv_progress_percent"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
+                            android:layout_weight="1"
                             android:text="0%"
                             android:textColor="#000000"
-                            android:textSize="28sp"
+                            android:textSize="24sp"
                             android:textStyle="bold" />
 
                         <com.google.android.material.progressindicator.CircularProgressIndicator
                             android:id="@+id/progress_indicator"
                             android:layout_width="48dp"
                             android:layout_height="48dp"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
                             android:progress="0"
                             app:indicatorColor="#E53935"
+                            app:indicatorSize="48dp"
                             app:trackColor="#E0E0E0"
-                            app:trackThickness="6dp"
-                            app:indicatorSize="48dp" />
-                    </RelativeLayout>
+                            app:trackThickness="6dp" />
+
+                    </LinearLayout>
+
                 </LinearLayout>
+
             </androidx.cardview.widget.CardView>
 
             <!-- Study Streak Card -->
             <androidx.cardview.widget.CardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="6dp"
                 android:layout_weight="1"
+                app:cardBackgroundColor="#FFFFFF"
                 app:cardCornerRadius="16dp"
                 app:cardElevation="2dp"
-                app:cardBackgroundColor="#FFFFFF"
                 app:strokeColor="#E0E0E0"
                 app:strokeWidth="1dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
                     android:orientation="vertical"
-                    android:padding="16dp">
+                    android:padding="14dp">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -251,33 +215,39 @@
                         android:layout_marginBottom="12dp"
                         android:text="Study Streak"
                         android:textColor="#000000"
-                        android:textSize="15sp"
+                        android:textSize="14sp"
                         android:textStyle="bold" />
 
-                    <RelativeLayout
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="56dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
                         <TextView
                             android:id="@+id/tv_streak"
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
+                            android:layout_weight="1"
+                            android:ellipsize="end"
+                            android:maxLines="1"
                             android:text="0 days"
                             android:textColor="#000000"
-                            android:textSize="24sp"
+                            android:textSize="22sp"
                             android:textStyle="bold" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_centerVertical="true"
                             android:text="🔥"
-                            android:textSize="28sp" />
-                    </RelativeLayout>
+                            android:textSize="26sp" />
+
+                    </LinearLayout>
+
                 </LinearLayout>
+
             </androidx.cardview.widget.CardView>
+
         </LinearLayout>
 
         <!-- Tasks Card -->
@@ -285,9 +255,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
+            app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="16dp"
             app:cardElevation="2dp"
-            app:cardBackgroundColor="#FFFFFF"
             app:strokeColor="#E0E0E0"
             app:strokeWidth="1dp">
 
@@ -306,41 +276,49 @@
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
-                <RelativeLayout
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
 
                     <TextView
                         android:id="@+id/tv_tasks_total"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:maxLines="1"
                         android:text="0 Total"
                         android:textColor="#000000"
-                        android:textSize="20sp"
+                        android:textSize="18sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:id="@+id/tv_tasks_remaining"
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:gravity="end"
+                        android:maxLines="1"
                         android:text="0 remaining"
                         android:textColor="#000000"
-                        android:textSize="20sp"
+                        android:textSize="18sp"
                         android:textStyle="bold" />
-                </RelativeLayout>
+
+                </LinearLayout>
+
             </LinearLayout>
+
         </androidx.cardview.widget.CardView>
 
-        <!-- Action Buttons Row -->
+        <!-- Action Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="28dp"
             android:gravity="center"
-            android:orientation="horizontal"
-            android:weightSum="4">
+            android:orientation="horizontal">
 
             <!-- Add Assignment -->
             <LinearLayout
@@ -348,10 +326,10 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
 
                 <FrameLayout
                     android:layout_width="52dp"
@@ -364,16 +342,18 @@
                         android:layout_gravity="center"
                         android:src="@drawable/ic_add"
                         app:tint="#FFFFFF" />
+
                 </FrameLayout>
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:gravity="center"
                     android:text="Add\nAssignment"
                     android:textColor="#333333"
-                    android:textSize="12sp" />
+                    android:textSize="11sp" />
+
             </LinearLayout>
 
             <!-- Start Study Session -->
@@ -382,32 +362,34 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
 
                 <FrameLayout
                     android:layout_width="52dp"
                     android:layout_height="52dp"
-                    android:background="@drawable/circle_outline">
+                    android:background="@drawable/circle_teal">
 
                     <ImageView
                         android:layout_width="28dp"
                         android:layout_height="28dp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_play_arrow"
-                        app:tint="#000000" />
+                        app:tint="#FFFFFF" />
+
                 </FrameLayout>
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:gravity="center"
                     android:text="Start\nStudy Session"
                     android:textColor="#333333"
-                    android:textSize="12sp" />
+                    android:textSize="11sp" />
+
             </LinearLayout>
 
             <!-- Add Module -->
@@ -416,25 +398,26 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
 
                 <ImageView
                     android:layout_width="52dp"
                     android:layout_height="52dp"
-                    android:src="@drawable/ic_book"
-                    android:contentDescription="Add Module" />
+                    android:contentDescription="Add Module"
+                    android:src="@drawable/ic_book" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:gravity="center"
                     android:text="Add\nModule"
                     android:textColor="#333333"
-                    android:textSize="12sp" />
+                    android:textSize="11sp" />
+
             </LinearLayout>
 
             <!-- View Calendar -->
@@ -443,29 +426,31 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical"
                 android:clickable="true"
-                android:focusable="true">
+                android:focusable="true"
+                android:gravity="center"
+                android:orientation="vertical">
 
                 <ImageView
                     android:layout_width="52dp"
                     android:layout_height="52dp"
-                    android:src="@drawable/ic_calendar"
-                    android:contentDescription="View Calendar" />
+                    android:contentDescription="View Calendar"
+                    android:src="@drawable/ic_calendar" />
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:gravity="center"
                     android:text="View\nCalendar"
                     android:textColor="#333333"
-                    android:textSize="12sp" />
+                    android:textSize="11sp" />
+
             </LinearLayout>
+
         </LinearLayout>
 
-        <!-- Latest Achievements Section -->
+        <!-- Latest Achievements -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -475,40 +460,13 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
-        <!-- Container that will hold recent achievements (or empty state) -->
         <LinearLayout
             android:id="@+id/ll_latest_achievements"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:minHeight="48dp">
+            android:minHeight="48dp"
+            android:orientation="vertical">
 
-            <!-- Example achievement item (you will populate this dynamically) -->
-            <!--
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:paddingVertical="8dp">
-
-                <ImageView
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:src="@drawable/ic_badge" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="12dp"
-                    android:text="Completed 7-day streak"
-                    android:textColor="#333333"
-                    android:textSize="14sp" />
-            </LinearLayout>
-            -->
-
-            <!-- Empty state (shown when user has no achievements yet) -->
             <TextView
                 android:id="@+id/tv_no_achievements"
                 android:layout_width="match_parent"
@@ -521,4 +479,5 @@
         </LinearLayout>
 
     </LinearLayout>
+
 </ScrollView>
