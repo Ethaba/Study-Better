@@ -21,6 +21,7 @@ class login : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        RetrofitClient.initialize(this)
         enableEdgeToEdge()
         setContentView(R.layout.activity_login)
 

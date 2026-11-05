@@ -1,3 +1,4 @@
+
 package com.example.studybetter
 
 import android.content.Context
@@ -18,13 +19,19 @@ object AssignmentStorage {
         return assignmentsKeyPrefix + userId
     }
 
+    fun replaceAssignments(
+        context: Context,
+        assignments: List<Assignment>
+    ) {
+        saveAll(context, assignments)
+    }
+
     fun getAssignments(context: Context): MutableList<Assignment> {
 
         val savedText = context.getSharedPreferences(
             preferencesName,
             Context.MODE_PRIVATE
-        )
-            .getString(getUserKey(context), "[]") ?: "[]"
+        ).getString(getUserKey(context), "[]") ?: "[]"
 
         val assignments = mutableListOf<Assignment>()
         val savedArray = JSONArray(savedText)
@@ -53,7 +60,6 @@ object AssignmentStorage {
         context: Context,
         assignment: Assignment
     ) {
-
         val assignments = getAssignments(context)
 
         val existingIndex = assignments.indexOfFirst {
@@ -73,7 +79,6 @@ object AssignmentStorage {
         context: Context,
         assignmentId: Long
     ) {
-
         val assignments = getAssignments(context)
 
         assignments.removeAll {
@@ -87,11 +92,9 @@ object AssignmentStorage {
         context: Context,
         assignments: List<Assignment>
     ) {
-
         val savedArray = JSONArray()
 
         assignments.forEach { assignment ->
-
             savedArray.put(
                 JSONObject()
                     .put("id", assignment.id)

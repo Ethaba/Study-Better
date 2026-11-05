@@ -1,16 +1,26 @@
+
 package com.example.studybetter
 
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.studybetter.api.AssignmentRequest
+import com.example.studybetter.api.RetrofitClient
+import com.example.studybetter.data.AssignmentRoomRepository
+import com.example.studybetter.data.ModuleRoomRepository
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.slider.Slider
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -21,14 +31,19 @@ class dialog_add_edit_assignment : AppCompatActivity() {
 
     private lateinit var dueDateInput: TextInputEditText
     private lateinit var progressText: TextView
+    private lateinit var assignmentRepository: AssignmentRoomRepository
+    private lateinit var moduleRepository: ModuleRoomRepository
 
     private var selectedPriority = "Low"
-
-    // Used when editing an existing assignment
     private var editingAssignmentId: Long? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        RetrofitClient.initialize(this)
+
+        assignmentRepository = AssignmentRoomRepository(this)
+        moduleRepository = ModuleRoomRepository(this)
 
         setContentView(R.layout.activity_dialog_add_edit_assignment)
 
@@ -40,9 +55,10 @@ class dialog_add_edit_assignment : AppCompatActivity() {
             -1L
         ).takeIf { it != -1L }
 
-        findViewById<android.view.View>(R.id.btn_back).setOnClickListener {
-            finish()
-        }
+        findViewById<View>(R.id.btn_back)
+            .setOnClickListener {
+                finish()
+            }
 
         setUpModuleMenu()
         setUpDatePicker()
@@ -53,9 +69,10 @@ class dialog_add_edit_assignment : AppCompatActivity() {
             loadAssignmentForEditing()
         }
 
-        findViewById<MaterialButton>(R.id.btn_save).setOnClickListener {
-            saveAssignment()
-        }
+        findViewById<MaterialButton>(R.id.btn_save)
+            .setOnClickListener {
+                saveAssignment()
+            }
     }
 
     private fun setUpModuleMenu() {
@@ -63,29 +80,39 @@ class dialog_add_edit_assignment : AppCompatActivity() {
         val moduleInput =
             findViewById<AutoCompleteTextView>(R.id.act_module)
 
-        val savedModules = ModuleStorage.getModules(this)
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                val savedModules = withContext(Dispatchers.IO) {
+                    moduleRepository.getModules()
+                }
 
-        val moduleNames = mutableListOf<String>()
+                val moduleNames = mutableListOf("General")
 
-        moduleNames.add("General")
+                savedModules.forEach { module ->
+                    moduleNames.add(module.title)
+                }
 
-        savedModules.forEach { module ->
-            moduleNames.add(module.title)
+                val adapter = ArrayAdapter(
+                    this@dialog_add_edit_assignment,
+                    android.R.layout.simple_dropdown_item_1line,
+                    moduleNames
+                )
+
+                moduleInput.setAdapter(adapter)
+
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this@dialog_add_edit_assignment,
+                    "Could not load modules.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
-
-        val adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_dropdown_item_1line,
-            moduleNames
-        )
-
-        moduleInput.setAdapter(adapter)
     }
 
     private fun setUpDatePicker() {
 
         dueDateInput.setOnClickListener {
-
             DatePickerDialog(
                 this,
                 { _, year, month, day ->
@@ -99,10 +126,7 @@ class dialog_add_edit_assignment : AppCompatActivity() {
                         0
                     )
 
-                    dueDate.set(
-                        Calendar.MILLISECOND,
-                        0
-                    )
+                    dueDate.set(Calendar.MILLISECOND, 0)
 
                     dueDateInput.setText(
                         SimpleDateFormat(
@@ -127,9 +151,7 @@ class dialog_add_edit_assignment : AppCompatActivity() {
 
         findViewById<Slider>(R.id.slider_progress)
             .addOnChangeListener { _, value, _ ->
-
-                progressText.text =
-                    "${value.toInt()}%"
+                progressText.text = "${value.toInt()}%"
             }
     }
 
@@ -155,39 +177,49 @@ class dialog_add_edit_assignment : AppCompatActivity() {
 
         val assignmentId = editingAssignmentId ?: return
 
-        val assignment = AssignmentStorage
-            .getAssignments(this)
-            .firstOrNull { it.id == assignmentId }
-            ?: return
+        CoroutineScope(Dispatchers.Main).launch {
+            try {
+                val assignment = withContext(Dispatchers.IO) {
+                    assignmentRepository.getAssignments()
+                        .firstOrNull { it.id == assignmentId }
+                } ?: return@launch
 
-        findViewById<TextInputEditText>(R.id.et_title)
-            .setText(assignment.title)
+                findViewById<TextInputEditText>(R.id.et_title)
+                    .setText(assignment.title)
 
-        findViewById<TextInputEditText>(R.id.et_description)
-            .setText(assignment.description)
+                findViewById<TextInputEditText>(R.id.et_description)
+                    .setText(assignment.description)
 
-        findViewById<AutoCompleteTextView>(R.id.act_module)
-            .setText(assignment.module, false)
+                findViewById<AutoCompleteTextView>(R.id.act_module)
+                    .setText(assignment.module, false)
 
-        dueDate.timeInMillis =
-            assignment.dueDateMillis
+                dueDate.timeInMillis = assignment.dueDateMillis
 
-        dueDateInput.setText(
-            SimpleDateFormat(
-                "dd MMM yyyy",
-                Locale.getDefault()
-            ).format(dueDate.time)
-        )
+                dueDateInput.setText(
+                    SimpleDateFormat(
+                        "dd MMM yyyy",
+                        Locale.getDefault()
+                    ).format(dueDate.time)
+                )
 
-        selectedPriority = assignment.priority
+                selectedPriority = assignment.priority
 
-        findViewById<Slider>(R.id.slider_progress).value = assignment.progress.toFloat()
+                findViewById<Slider>(R.id.slider_progress).value =
+                    assignment.progress.toFloat()
 
-        progressText.text =
-            "${assignment.progress}%"
+                progressText.text = "${assignment.progress}%"
 
-        findViewById<MaterialButton>(R.id.btn_save)
-            .text = "Update Assignment"
+                findViewById<MaterialButton>(R.id.btn_save).text =
+                    "Update Assignment"
+
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this@dialog_add_edit_assignment,
+                    "Could not load assignment.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 
     private fun saveAssignment() {
@@ -201,61 +233,45 @@ class dialog_add_edit_assignment : AppCompatActivity() {
         val dueDateLayout =
             findViewById<TextInputLayout>(R.id.til_due_date)
 
-        val title =
-            findViewById<TextInputEditText>(R.id.et_title)
-                .text
-                .toString()
-                .trim()
+        val title = findViewById<TextInputEditText>(R.id.et_title)
+            .text.toString().trim()
 
         val description =
             findViewById<TextInputEditText>(R.id.et_description)
-                .text
-                .toString()
-                .trim()
+                .text.toString().trim()
 
         val module =
             findViewById<AutoCompleteTextView>(R.id.act_module)
-                .text
-                .toString()
-                .trim()
+                .text.toString().trim()
 
         val progress =
             findViewById<Slider>(R.id.slider_progress)
-                .value
-                .toInt()
+                .value.toInt()
 
         titleLayout.error = null
         moduleLayout.error = null
         dueDateLayout.error = null
 
         if (title.isEmpty()) {
-            titleLayout.error =
-                "Please enter an assignment title"
+            titleLayout.error = "Please enter an assignment title"
             return
         }
 
         if (module.isEmpty()) {
-            moduleLayout.error =
-                "Please select a module"
+            moduleLayout.error = "Please select a module"
             return
         }
 
         if (dueDateInput.text.isNullOrBlank()) {
-            dueDateLayout.error =
-                "Please select a due date"
+            dueDateLayout.error = "Please select a due date"
             return
         }
 
-        // Automatically calculate priority based on how
-        // close the assignment deadline is.
         selectedPriority =
-            AssignmentPriority.fromDaysUntilDue(
-                daysUntilDue()
-            )
+            AssignmentPriority.fromDaysUntilDue(daysUntilDue())
 
         val assignmentId =
-            editingAssignmentId
-                ?: System.currentTimeMillis()
+            editingAssignmentId ?: System.currentTimeMillis()
 
         val assignment = Assignment(
             id = assignmentId,
@@ -267,27 +283,127 @@ class dialog_add_edit_assignment : AppCompatActivity() {
             progress = progress
         )
 
-        AssignmentStorage.saveAssignment(
-            this,
-            assignment
-        )
+        saveAssignmentToServer(assignment)
+    }
 
-        Toast.makeText(
-            this,
-            if (editingAssignmentId != null)
-                "Assignment updated"
-            else
-                "Assignment saved",
-            Toast.LENGTH_SHORT
-        ).show()
+    private fun saveAssignmentToServer(assignment: Assignment) {
 
-        finish()
+        CoroutineScope(Dispatchers.Main).launch {
+
+            val saveButton = findViewById<MaterialButton>(R.id.btn_save)
+            saveButton.isEnabled = false
+
+            try {
+
+                val selectedModule = withContext(Dispatchers.IO) {
+                    moduleRepository.getModules()
+                        .firstOrNull { it.title == assignment.module }
+                }
+
+                val moduleId = selectedModule
+                    ?.id
+                    ?.takeIf { it <= Int.MAX_VALUE }
+                    ?.toInt()
+
+                val request = AssignmentRequest(
+                    title = assignment.title,
+                    description = assignment.description,
+                    moduleID = moduleId,
+                    moduleName = assignment.module,
+                    dueDateMillis = assignment.dueDateMillis,
+                    priority = assignment.priority,
+                    progress = assignment.progress
+                )
+
+                val response = withContext(Dispatchers.IO) {
+
+                    if (assignment.id > Int.MAX_VALUE) {
+                        RetrofitClient.api.createAssignment(request)
+                    } else {
+                        RetrofitClient.api.updateAssignment(
+                            assignment.id.toInt(),
+                            request
+                        )
+                    }
+                }
+
+                if (response.isSuccessful && response.body() != null) {
+
+                    val saved = response.body()!!
+
+                    val serverAssignment = Assignment(
+                        id = saved.assignmentID.toLong(),
+                        title = saved.title,
+                        description = saved.description,
+                        module = saved.moduleName,
+                        dueDateMillis = saved.dueDateMillis,
+                        priority = saved.priority,
+                        progress = saved.progress
+                    )
+
+                    withContext(Dispatchers.IO) {
+
+                        if (assignment.id != serverAssignment.id) {
+                            assignmentRepository.permanentlyDeleteAssignment(
+                                assignment.id
+                            )
+                        }
+
+                        assignmentRepository.saveAssignment(
+                            serverAssignment,
+                            pending = false
+                        )
+                    }
+
+                    Toast.makeText(
+                        this@dialog_add_edit_assignment,
+                        if (editingAssignmentId != null)
+                            "Assignment updated"
+                        else
+                            "Assignment saved",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    finish()
+
+                } else {
+                    Toast.makeText(
+                        this@dialog_add_edit_assignment,
+                        "Could not save assignment. Server error: ${response.code()}",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+
+            } catch (e: Exception) {
+
+                // Save locally so the user can continue working offline.
+                withContext(Dispatchers.IO) {
+                    assignmentRepository.saveAssignment(
+                        assignment,
+                        pending = true
+                    )
+                }
+
+                Toast.makeText(
+                    this@dialog_add_edit_assignment,
+                    if (editingAssignmentId != null)
+                        "No server connection. Changes saved locally."
+                    else
+                        "No server connection. Assignment saved locally.",
+                    Toast.LENGTH_LONG
+                ).show()
+
+                finish()
+
+            } finally {
+                saveButton.isEnabled = true
+            }
+        }
     }
 
     private fun daysUntilDue(): Long {
 
         val today = Calendar.getInstance().apply {
-
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
             set(Calendar.SECOND, 0)
@@ -295,8 +411,7 @@ class dialog_add_edit_assignment : AppCompatActivity() {
         }
 
         return (
-                dueDate.timeInMillis -
-                        today.timeInMillis
+                dueDate.timeInMillis - today.timeInMillis
                 ) / (24 * 60 * 60 * 1000)
     }
 }
