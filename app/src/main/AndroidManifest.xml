@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -14,6 +15,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.StudyBetter"
         android:usesCleartextTraffic="true">
+        <service
+            android:name=".StudyBetterFirebaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <activity
+            android:name=".academic_resources"
+            android:exported="false" />
         <activity
             android:name=".study_session_history"
             android:exported="false" />

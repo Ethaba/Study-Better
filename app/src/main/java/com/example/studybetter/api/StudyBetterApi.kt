@@ -26,6 +26,13 @@ interface StudyBetterApi {
     ): Response<AuthResponse>
 
 
+    @POST("api/Auth/google")
+    suspend fun googleLogin(
+        @Body request: GoogleLoginRequest
+    ): Response<AuthResponse>
+
+
+
     // Modules
 
     @GET("api/Modules")

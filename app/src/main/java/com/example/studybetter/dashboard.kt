@@ -1,4 +1,3 @@
-
 package com.example.studybetter
 
 import android.content.Intent
@@ -21,6 +20,13 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import com.google.firebase.messaging.FirebaseMessaging
+import android.widget.Toast
 
 class dashboard : AppCompatActivity() {
 
@@ -30,6 +36,29 @@ class dashboard : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        requestNotificationPermission()
+
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                val token = task.result
+
+                getSharedPreferences(
+                    "study_better_settings",
+                    MODE_PRIVATE
+                ).edit()
+                    .putString("fcm_token", token)
+                    .apply()
+
+                android.util.Log.d("StudyBetterFCM", "FCM token received")
+            } else {
+                android.util.Log.e(
+                    "StudyBetterFCM",
+                    "Could not retrieve FCM token",
+                    task.exception
+                )
+            }
+        }
         setContentView(R.layout.activity_dashboard)
 
         assignmentRepository = AssignmentRoomRepository(this)
@@ -57,6 +86,31 @@ class dashboard : AppCompatActivity() {
 
         findViewById<View>(R.id.btn_view_calendar).setOnClickListener {
             openScreen(calendar::class.java)
+        }
+    }
+
+    private val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (!granted) {
+                Toast.makeText(
+                    this,
+                    "Notifications are disabled. You can enable them in app settings.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                notificationPermissionLauncher.launch(
+                    Manifest.permission.POST_NOTIFICATIONS
+                )
+            }
         }
     }
 
@@ -333,6 +387,7 @@ class dashboard : AppCompatActivity() {
         popupMenu.menu.add("Modules")
         popupMenu.menu.add("Assignments")
         popupMenu.menu.add("Study Sessions")
+        popupMenu.menu.add("Academic Resources")
         popupMenu.menu.add("Achievements")
 
         popupMenu.setOnMenuItemClickListener { item ->
@@ -350,6 +405,9 @@ class dashboard : AppCompatActivity() {
 
                 "Study Sessions" ->
                     openScreen(study_session_history::class.java)
+
+                "Academic Resources" ->
+                    openScreen(academic_resources::class.java)
 
                 "Achievements" ->
                     openScreen(achievements::class.java)
