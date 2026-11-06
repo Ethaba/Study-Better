@@ -115,10 +115,16 @@ class login : AppCompatActivity() {
                     }
 
                 } catch (e: Exception) {
+                    android.util.Log.e(
+                        "StudyBetterLogin",
+                        "Email login request failed",
+                        e
+                    )
+
                     withContext(Dispatchers.Main) {
                         Toast.makeText(
                             this@login,
-                            "Could not connect to the server.",
+                            "Login error: ${e.localizedMessage}",
                             Toast.LENGTH_LONG
                         ).show()
 

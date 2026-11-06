@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "413746553752",
+    "project_id": "study-better-9de05",
+    "storage_bucket": "study-better-9de05.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:413746553752:android:733df5437fb41d6a1301ed",
+        "android_client_info": {
+          "package_name": "com.example.studybetter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA_fjXGfOEfATLn0-QebH7aixzXLzxe0e8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
