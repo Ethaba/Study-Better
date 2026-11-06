@@ -1,301 +1,185 @@
 # Study Better
 
-## 1. Project Overview
+Study Better is an Android application designed to help students organise their academic work in one place. It brings together module and assignment management, study-session tracking, academic progress and learning resources.
 
-Study Better is an Android application developed to help students organise their academic activities in one place. The application provides features for managing modules, assignments, study sessions, progress and achievements, while also providing user registration, login and profile settings.
+This repository contains the Android application and its supporting ASP.NET Core REST API.
 
-The project was developed as an academic Android application using Kotlin and XML in Android Studio. A RESTful API was implemented using ASP.NET Core to handle user registration and authentication, with user information stored in an Azure SQL database.
+## Project objectives
 
-The project focuses on providing a simple and organised student experience while demonstrating Android development, API integration, database connectivity, authentication, testing and continuous integration.
+The application aims to help students:
+- Keep track of academic modules and assignments.
+- Monitor assignment deadlines and completion.
+- Record study sessions and review study activity.
+- View academic progress and achievements.
+- Keep useful academic resources together.
+- Access their account through standard login or Google Sign-In.
 
----
+## Main features
 
-## 2. Project Purpose
+### Core application
+- User registration and email/password login.
+- Google Sign-In through Google Identity / Credential Manager.
+- Personalised dashboard.
+- Module management.
+- Assignment management.
+- Study-session timer and session history.
+- Academic progress screen.
+- Academic resource management.
+- Profile and application settings.
 
-The purpose of Study Better is to provide students with a central application for organising their academic responsibilities.
+### Offline data
+The Android application uses Room as local storage for supported academic data. The project includes local entities and data-access components for modules, assignments, study sessions and academic resources. Synchronisation is handled through the application's background-work implementation.
 
-The application allows students to:
 
-* Create an account and log in securely.
-* View a personalised dashboard.
-* Manage their academic modules.
-* Add and manage assignments.
-* View upcoming assignment deadlines.
-* Set and track assignment progress.
-* Use a study session timer.
-* View academic progress.
-* View achievements.
-* Manage profile and application settings.
-* Change selected settings such as language, study goal and notifications.
+### Notifications
+Firebase Cloud Messaging is being integrated to support push notifications. The Android project has been connected to a Firebase project and includes the initial messaging-service and notification-permission implementation.
 
----
 
-## 3. Main Features
+### Languages
+The intended language support for the project includes English, isiZulu and isiXhosa.
 
-### User Registration and Login
+## Technology stack
 
-Users can register using their full name, email address and password.
+| Technology | Purpose |
+|---|---|
+| Kotlin | Android application development |
+| XML | Android screen layouts |
+| Android Studio | Android development environment |
+| Room | Local on-device database |
+| WorkManager | Background work and synchronisation |
+| Firebase Cloud Messaging | Push notification delivery |
+| Android Credential Manager / Google Identity | Google Sign-In |
+| ASP.NET Core | REST API |
+| C# | Backend implementation |
+| Entity Framework Core | Database access |
+| Azure SQL Database | Online relational database |
+| Retrofit | Android-to-API communication |
+| Gson Converter | JSON conversion |
+| JWT Bearer | API authentication |
+| PasswordHasher | Password hashing |
+| JUnit | Unit testing |
+| GitHub | Source control |
+| GitHub Actions | Automated build and test workflow |
 
-The application communicates with the REST API when registering and logging in. Passwords are not stored as plain text. The API uses password hashing before storing the password information in the database.
+## System architecture
 
-### Dashboard
+Study Better follows a client-server design.
 
-The dashboard provides an overview of the student's academic information.
+1. The Android application provides the user interface and manages local application data.
+2. Retrofit sends API requests from Android to the ASP.NET Core backend.
+3. The backend validates requests, applies user-specific access rules and handles authentication.
+4. Entity Framework Core communicates with Azure SQL Database.
+5. Room stores supported data locally so that the application can access it without relying on a live API connection.
+6. WorkManager is used for scheduled background work, including data synchronisation.
+7. Firebase Cloud Messaging is used for push-notification delivery.
 
-It includes:
+## Backend API
 
-* Personalised user greeting.
-* Upcoming assignments.
-* Assignment progress.
-* Latest achievements.
-* Access to other areas of the application.
+The backend is an ASP.NET Core Web API project named `StudyBetter.API`.
 
-### Modules
+The API includes authentication endpoints for registration and login, Google authentication, and user-scoped endpoints for modules, assignments and study sessions.
 
-Students can manage the modules associated with their studies.
+Known routes include:
 
-### Assignments
+| Feature | Route |
+|---|---|
+| Register | `POST /api/Auth/register` |
+| Login | `POST /api/Auth/login` |
+| Google login | `POST /api/Auth/google` |
+| Modules | `api/Modules` |
+| Assignments | `api/Assignments` |
+| Study sessions | `api/StudySessions` |
 
-Students can create and manage assignments by providing information such as:
+The exact supported HTTP methods and request fields are defined by the API controllers and DTOs in the source project.
 
-* Assignment title.
-* Description.
-* Module.
-* Due date.
-* Priority.
-* Completion progress.
+### Authentication
 
-Assignments can be displayed according to their due dates and progress.
+For email/password authentication, the API hashes passwords rather than storing them as plain text. After successful authentication, the API returns a JWT. The Android application includes this token in the Authorization header for protected requests.
 
-### Calendar
+Google Sign-In obtains an ID token on Android and sends it to the backend. The backend validates the token against the configured Google Web OAuth client ID, checks that the email is verified, and then signs the user in or creates an account.
 
-The calendar provides a way of viewing assignment-related dates and managing assignment information.
+## Database and local storage
 
-### Study Session
+Azure SQL Database is used for online data. Entity Framework Core provides the backend database access.
 
-The study session feature allows students to track their study time using a timer.
+Room is used on Android for local data. The local database contains entities for:
+- Modules
+- Assignments
+- Study sessions
+- Academic resources
 
-### Progress
+Room migrations are used to update the local database schema as new entities and fields are introduced.
 
-The progress section provides an overview of assignment completion and academic activity.
+## Academic resources
 
-### Achievements
+The Academic Resources feature allows a student to save resource details such as a title, description, category and optional URL. Resource records are stored locally in Room and can be searched, opened when a URL is supplied, and deleted.
 
-The achievements section provides achievement information based on the student's activity within the application.
+The current implementation stores resource information and links. It should not be described as uploading or storing the actual contents of PDF or other files unless file storage is added separately.
 
-### Profile and Settings
+## Academic progress
 
-Users can manage their profile and selected application settings.
+The Progress screen uses locally available module, assignment and study-session data to display study time, completed assignments, module progress, XP and level information.
 
----
+The current achievement and XP calculations are application-side progress indicators. They should not be represented as server-validated awards unless persistent achievement handling is added.
 
-## 4. Technologies Used
+## Running the project
 
-| Technology            | Purpose                                        |
-| --------------------- | ---------------------------------------------- |
-| Kotlin                | Android application programming language       |
-| XML                   | Android user interface layouts                 |
-| Android Studio        | Android development environment                |
-| ASP.NET Core          | RESTful API                                    |
-| C#                    | API development                                |
-| Entity Framework Core | Database access and data management            |
-| Azure SQL Database    | Online database                                |
-| Retrofit              | Communication between Android and the REST API |
-| Gson Converter        | Conversion of JSON API responses               |
-| JWT                   | Authentication tokens                          |
-| PasswordHasher        | Password hashing                               |
-| JUnit                 | Unit testing                                   |
-| GitHub                | Source code management                         |
-| GitHub Actions        | Automated testing and build process            |
+### Android application
+1. Install Android Studio and the required Android SDK.
+2. Clone or download this repository.
+3. Open the Android project in Android Studio.
+4. Confirm that `app/google-services.json` is present for Firebase configuration.
+5. Allow Gradle to sync.
+6. Configure the API base URL in `RetrofitClient.kt` to point to the backend environment being used.
+7. Run the app on an emulator or a physical Android device.
 
-Kotlin is officially supported for Android development and is used extensively within the Android development ecosystem.
+### Backend API
+1. Install the .NET SDK version required by the backend project.
+2. Open the `StudyBetter.API` project.
+3. Configure the Azure SQL connection string using User Secrets or environment variables.
+4. Configure `Google:ClientId` using User Secrets or an environment variable.
+5. Run the API project.
+6. Ensure the Android device can reach the API host and that the configured base URL and network settings are correct.
 
----
+Example development command:
 
-## 5. System Architecture
-
-Study Better uses a client-server architecture.
-
-The Android application communicates with the ASP.NET Core REST API using Retrofit. The API processes requests and communicates with Azure SQL through Entity Framework Core.
-
-Entity Framework Core provides support for SQL Server and Azure SQL through the SQL Server database provider.
-
----
-
-## 6. REST API
-
-The Android application communicates with the backend through REST API endpoints.
-
-The authentication endpoints include:
-
-```text
-POST /api/Auth/register
-POST /api/Auth/login
+```powershell
+dotnet run --urls "http://0.0.0.0:5293"
 ```
 
-### Registration
+This exposes the development API on the local network interface. Use a secure, hosted HTTPS endpoint for production.
 
-The Android application sends registration information to the API.
 
-```json
-{
-  "fullName": "Student Name",
-  "email": "student@example.com",
-  "password": "password"
-}
-```
+## GitHub Actions
 
-The API validates the information, hashes the password and stores the user information in Azure SQL.
+The Android workflow is located at:
 
-### Login
+`.github/workflows/android.yml`
 
-The Android application sends the user's email and password to the API.
+The workflow is intended to automate the Android build and unit-test process when changes are pushed or pull requests are opened.
 
-The API verifies the credentials and returns an authentication response containing user information and a JWT token.
+## Repository
 
-The Android application then stores the required session information locally so that the logged-in user can be identified throughout the application.
+GitHub repository: https://github.com/Ethaba/Study-Better
 
----
+## Project structure
 
-## 7. Database
-
-The application uses Microsoft Azure SQL Database as its online database.
-
-The user table stores information such as:
-
-* User ID
-* Full name
-* Email address
-* Password hash
-* Language preference
-* Study goal
-* Theme
-* Notification preference
-* Account creation date
-
-The database was created and managed through Azure, while Entity Framework Core was used by the ASP.NET Core API to communicate with the database.
-
-Microsoft provides documentation for connecting .NET applications to Azure SQL Database using Entity Framework Core.
-
----
-
-## 8. Authentication and Security
-
-Study Better uses authentication through the ASP.NET Core API.
-
-The application does not store the user's password as plain text. Passwords are hashed before being stored in the database.
-
-After a successful login, the API returns a JWT authentication token. The Android application stores the token and relevant user information locally for the current session.
-
-Input validation is also used for fields such as email addresses and passwords to help prevent invalid information from being submitted.
-
----
-
-## 9. Local Application Data
-
-Some application features use local Android storage to maintain information needed by the application.
-
-User-specific assignment and module information is associated with the logged-in user's ID. This helps prevent information belonging to one user from being displayed for another user on the same application.
-
----
-
-## 10. Testing
-
-Unit tests were implemented to test important application logic.
-
-The current unit tests include tests for:
-
-### Assignment Priority
-
-The assignment priority logic is tested using different numbers of days until an assignment is due.
-
-Examples include:
-
-* 5 days → High priority
-* 6 days → Medium priority
-* 10 days → Medium priority
-* 14 days → Medium priority
-* 15 days → Low priority
-
-### Input Validation
-
-Input validation tests check:
-
-* Valid email addresses.
-* Invalid email addresses.
-* Empty email addresses.
-* Valid passwords.
-* Passwords shorter than six characters.
-* Empty passwords.
-
-The tests were executed successfully in Android Studio.
-
-Android Studio provides tools for creating and running Android tests, while command-line testing can also be used as part of continuous integration systems.
-
----
-
-## 11. GitHub Actions
-
-GitHub Actions was implemented to automatically build and test the project.
-
-The workflow is located at:
+The Android project follows the standard Gradle structure:
 
 ```text
-.github/workflows/android.yml
-```
-
-The workflow performs the following steps:
-
-1. Checks out the project from GitHub.
-2. Sets up JDK 11.
-3. Sets up Gradle.
-4. Runs the unit tests.
-5. Builds the debug APK.
-
-The workflow is triggered when changes are pushed to the `master` branch or when a pull request targets the `master` branch.
-
-The workflow successfully completed the project build and tests.
-
-GitHub Actions workflows are defined using YAML files inside the `.github/workflows` directory and can automate build and testing processes.
-
----
-
-## 12. GitHub Repository
-
-The source code for Study Better is available on GitHub:
-
-**Repository:**
-https://github.com/Ethaba/Study-Better
-
-The repository contains the Android Studio project, application source code, tests and GitHub Actions workflow.
-
-Git was used throughout development to keep track of changes and maintain the project source code.
-
----
-
-## 13. Project Structure
-
-The main Android project is organised using the following structure:
-
-```text
-Study-Better
-│
-├── .github
-│   └── workflows
+Study-Better/
+├── .github/
+│   └── workflows/
 │       └── android.yml
-│
-├── app
-│   └── src
-│       ├── main
-│       │   ├── java
-│       │   └── res
-│       │
-│       ├── test
-│       │   └── java
-│       │
-│       └── androidTest
-│
-├── gradle
+├── app/
+│   ├── google-services.json
+│   └── src/
+│       ├── main/
+│       │   ├── java/
+│       │   └── res/
+│       ├── test/
+│       └── androidTest/
+├── gradle/
 ├── build.gradle.kts
 ├── gradle.properties
 ├── gradlew
@@ -303,94 +187,25 @@ Study-Better
 └── settings.gradle.kts
 ```
 
----
-## API Creation Proof
+The backend API is maintained in the `StudyBetter.API` project.
 
-<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/029dc1d8-4c6c-490f-9018-506cbdb25a32" />
+## Demonstration video
 
+Previous demonstration video: https://youtu.be/P8KLJHX3Uzs
 
-<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/8106f37f-212b-4f15-a88d-d1eac204f438" />
-
-The API was coded in C# using Visual Studio 
+Alternative video link: https://drive.google.com/file/d/1TSWU8SD6MR5c1MgIgvlSAW6MMUmhAaNb/view?usp=drive_link
 
 
-## 14. Demonstration Video
+## References
 
-A demonstration video was recorded showing the functionality of the Study Better application.
-
-The demonstration includes the main application flow, including registration, login, dashboard functionality and the application's main features.
-
-**Demo Video:**
-*https://youtu.be/P8KLJHX3Uzs* 
-
- Alternative link if YouTube removes the video
- *https://drive.google.com/file/d/1TSWU8SD6MR5c1MgIgvlSAW6MMUmhAaNb/view?usp=drive_link*  
- 
----
-
-## 15. Design Considerations
-
-The application was designed with simplicity and ease of navigation in mind.
-
-The main design considerations were:
-
-* Clear navigation between application features.
-* Consistent layouts across screens.
-* Simple input forms.
-* Feedback when users enter invalid information.
-* Clear presentation of assignment deadlines and progress.
-* Personalised information based on the logged-in user.
-* A layout suitable for use on a mobile device.
-
-The application uses XML layouts to maintain control over the structure and appearance of each screen.
-
----
-
-## 16. Development and Version Control
-
-GitHub was used as the project's source code repository.
-
-Development changes were committed throughout the project so that changes could be tracked and the project could be restored to earlier versions if required.
-
-GitHub Actions was added to improve the development process by automatically running tests and building the Android application after changes are pushed.
-
----
-
-## 17. Future Improvements
-
-Possible improvements for future versions of Study Better include:
-
-* Moving more application data from local storage to the REST API.
-* Adding online synchronisation for assignments and modules.
-* Adding push notifications for upcoming deadlines.
-* Adding more detailed study statistics.
-* Adding additional authentication options.
-* Hosting the API online so that the application does not depend on a locally running development server.
-* Adding additional automated UI tests.
-
-
----
-## 18. AI Usage Statement
-
-AI tools were used during the development of the Study Better application as a supporting resource. They were mainly used to help explain unfamiliar Android Studio and Kotlin concepts, identify programming errors, assist with debugging, and suggest possible solutions when problems occurred during development.
-
-AI assistance was also used to help understand API integration, Retrofit, testing and GitHub Actions. The generated suggestions were reviewed and adapted to the requirements of the application before being implemented.
-
-The final application was tested by running the application on an Android device, testing its main functions and running the project's unit tests. GitHub Actions was also used to automatically build and test the project.
-
-
-## 19. References
-
-Android Developers. (n.d.). *Develop Android apps with Kotlin*. Available at: https://developer.android.com/kotlin (Accessed: 23 September 2026).
-
-Android Developers. (n.d.). *Test your app*. Available at: https://developer.android.com/studio/test (Accessed: 23 September 2026).
-
-GitHub Docs. (n.d.). *Workflows*. Available at: https://docs.github.com/en/actions/concepts/workflows-and-actions/workflows (Accessed: 23 September 2026).
-
-GitHub Docs. (n.d.). *Quickstart for GitHub Actions*. Available at: https://docs.github.com/en/actions/get-started/quickstart (Accessed: 23 September 2026).
-
-Microsoft. (n.d.). *Connect to and Query Azure SQL Database Using .NET and Entity Framework Core*. Microsoft Learn. Available at: https://learn.microsoft.com/en-us/azure/azure-sql/database/azure-sql-dotnet-entity-framework-core-quickstart (Accessed: 23 September 2026).
-
-Microsoft. (n.d.). *Microsoft SQL Server Database Provider - EF Core*. Microsoft Learn. Available at: https://learn.microsoft.com/en-us/ef/core/providers/sql-server/ (Accessed: 23 September 2026).
-
-Retrofit. (n.d.). *Retrofit: A type-safe HTTP client for Android and Java*. Available at: https://square.github.io/retrofit/ (Accessed: 23 September 2026).
+- Android Developers. Kotlin for Android: https://developer.android.com/kotlin 
+- Android Developers. Test apps on Android: https://developer.android.com/studio/test
+- Android Developers. Room persistence library: https://developer.android.com/training/data-storage/room
+- Android Developers. WorkManager: https://developer.android.com/topic/libraries/architecture/workmanager
+- Firebase. Set up Firebase Cloud Messaging for Android: https://firebase.google.com/docs/cloud-messaging/android/get-started
+- Firebase. Add Firebase to your Android project: https://firebase.google.com/docs/android/setup
+- Google. Credential Manager: https://developer.android.com/identity
+- GitHub Docs. GitHub Actions workflows: https://docs.github.com/en/actions
+- Microsoft. EF Core with Azure SQL: https://learn.microsoft.com/en-us/azure/azure-sql/database/azure-sql-dotnet-entity-framework-core-quickstart
+- Microsoft. EF Core SQL Server provider: https://learn.microsoft.com/en-us/ef/core/providers/sql-server/
+- Square. Retrofit: https://square.github.io/retrofit/
