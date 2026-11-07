@@ -364,13 +364,7 @@ The backend API is maintained in the `StudyBetter.API` project.
 
 ## 13. Demonstration Video
 
-Previous demonstration video:
-
-https://youtu.be/P8KLJHX3Uzs
-
-Alternative video:
-
-https://drive.google.com/file/d/1TSWU8SD6MR5c1MgIgvlSAW6MMUmhAaNb/view?usp=drive_link
+https://drive.google.com/file/d/1C9qpTDrdas90J9kDN7L0CvbG8Wf5NF8v/view?usp=sharing 
 
 ---
 
