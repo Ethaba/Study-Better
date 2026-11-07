@@ -392,4 +392,4 @@ https://drive.google.com/file/d/1TSWU8SD6MR5c1MgIgvlSAW6MMUmhAaNb/view?usp=drive
 
 **Study Better**
 
-Plan. Learn. Achieve.
+Learn Smarter. Study Better.
