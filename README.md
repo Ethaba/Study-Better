@@ -337,26 +337,55 @@ The following materials were prepared:
 
 The Android application follows the standard Android Studio Gradle project structure.
 
+## Repository Structure
+
+The repository contains both the Android application and the ASP.NET Core Web API backend.
+
 ```text
 Study-Better/
+│
+├── app/                              # Android application
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/com/example/studybetter/
+│   │   │   │   ├── activities and screens
+│   │   │   │   ├── adapters/
+│   │   │   │   ├── api/
+│   │   │   │   ├── database/
+│   │   │   │   ├── repositories/
+│   │   │   │   └── workers/
+│   │   │   ├── res/                  # Layouts, drawables and resources
+│   │   │   └── AndroidManifest.xml
+│   │   └── test/                     # Unit tests
+│   │
+│   ├── build.gradle.kts
+│   └── google-services.json          # Firebase configuration
+│
+├── StudyBetter.API/                 # ASP.NET Core Web API
+│   ├── Controllers/                 # API endpoints
+│   ├── Models/                      # Application data models
+│   ├── Data/                        # Database context and configuration
+│   ├── Properties/
+│   ├── Program.cs                   # API entry point
+│   ├── appsettings.json             # Application configuration
+│   └── StudyBetter.API.csproj       # API project file
+│
 ├── .github/
-│   └── workflows/
-│       └── android.yml
-├── app/
-│   ├── google-services.json
-│   └── src/
-│       ├── main/
-│       │   ├── java/
-│       │   └── res/
-│       ├── test/
-│       └── androidTest/
-├── gradle/
-├── build.gradle.kts
+│   └── workflows/                   # GitHub Actions CI workflow
+│
+├── gradle/                          # Gradle wrapper and version catalog
+├── StudyBetter.sln                  # Visual Studio solution
+├── build.gradle.kts                 # Root Gradle configuration
+├── settings.gradle.kts              # Gradle project settings
 ├── gradle.properties
 ├── gradlew
 ├── gradlew.bat
-└── settings.gradle.kts
+├── README.md                        # Project documentation
+├── Play_Store_Description.md        # Play Store listing content
+└── Privacy_Policy.md                # Application privacy policy
 ```
+
+**Note:** The Android application and ASP.NET Core API are maintained as separate projects within the same GitHub repository. The Android application communicates with the backend through REST API endpoints.
 
 The backend API is maintained in the `StudyBetter.API` project.
 
