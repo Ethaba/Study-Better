@@ -311,7 +311,9 @@ A signed release APK was generated successfully using Android Studio's signing w
 | APK filename | `app-release.apk` |
 
 The release APK was approximately 8.2 MB when generated.
+
 <img width="526" height="609" alt="Screenshot 2026-11-07 104833" src="https://github.com/user-attachments/assets/0e4d0b9a-5bb5-424f-adf3-256e855b8824" />
+
 <img width="560" height="392" alt="Screenshot 2026-11-07 105046" src="https://github.com/user-attachments/assets/c155636f-d3da-457a-85aa-f372c96e1b1f" />
 
 
