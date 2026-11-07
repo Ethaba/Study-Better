@@ -1,145 +1,249 @@
 # Study Better
 
-Study Better is an Android application designed to help students organise their academic work in one place. It brings together module and assignment management, study-session tracking, academic progress and learning resources.
+Study Better is an Android application developed to help students organise their academic activities and manage their studies in one place. The application combines module management, assignment tracking, study sessions, academic progress, achievements and learning resources.
 
-This repository contains the Android application and its supporting ASP.NET Core REST API.
+The project consists of an Android application developed using Kotlin and XML, supported by an ASP.NET Core REST API and an Azure SQL Database.
 
-## Project objectives
+**GitHub Repository:** https://github.com/Ethaba/Study-Better
 
-The application aims to help students:
-- Keep track of academic modules and assignments.
-- Monitor assignment deadlines and completion.
-- Record study sessions and review study activity.
-- View academic progress and achievements.
-- Keep useful academic resources together.
-- Access their account through standard login or Google Sign-In.
+---
 
-## Main features
+## 1. Project Objectives
 
-### Core application
-- User registration and email/password login.
-- Google Sign-In through Google Identity / Credential Manager.
-- Personalised dashboard.
-- Module management.
-- Assignment management.
-- Study-session timer and session history.
-- Academic progress screen.
-- Academic resource management.
-- Profile and application settings.
+Study Better aims to help students:
 
-### Offline data
-The Android application uses Room as local storage for supported academic data. The project includes local entities and data-access components for modules, assignments, study sessions and academic resources. Synchronisation is handled through the application's background-work implementation.
+- Organise their academic modules.
+- Manage assignments and monitor deadlines.
+- Track the time spent studying.
+- Monitor academic progress.
+- Access and organise learning resources.
+- Track achievements and academic milestones.
+- Receive notifications and study reminders.
+- Access their accounts using email and password or Google Sign-In.
+
+---
+
+## 2. Main Features
+
+### User Registration and Authentication
+
+- Account registration using personal details.
+- Email and password login.
+- Google Sign-In using Android Credential Manager and Google Identity.
+- JWT-based authentication through the backend API.
+
+### Dashboard
+
+The dashboard provides an overview of the student's academic activities and provides navigation to the application's main features.
+
+### Module Management
+
+Students can create, view, update and delete academic modules.
+
+### Assignment Management
+
+Students can:
+
+- Create and manage assignments.
+- Associate assignments with modules.
+- Set assignment due dates.
+- Select assignment priorities.
+- Monitor assignment completion progress.
+
+### Study Sessions
+
+The study-session timer allows students to record the time they spend studying. Session information is saved locally and can be synchronised with the backend when connectivity is available.
+
+### Academic Progress Analytics
+
+The progress screen presents academic information such as:
+
+- Total recorded study time.
+- Completed assignments.
+- Module progress.
+- XP and level indicators.
+- Achievement information.
+
+XP, levels and achievement indicators are calculated within the application and should be understood as application-side progress indicators rather than independently verified academic results.
+
+### Academic Resource Management
+
+Students can save and organise academic resources by entering:
+
+- Resource title.
+- Description.
+- Category.
+- Optional external URL.
+
+Resources can be searched, opened when a URL is available, and deleted.
 
 
-### Notifications
-Firebase Cloud Messaging is being integrated to support push notifications. The Android project has been connected to a Firebase project and includes the initial messaging-service and notification-permission implementation.
+### Achievements
 
+The application includes achievement milestones based on academic activity, including study time, completed assignments and module activity.
 
-### Languages
-The intended language support for the project includes English, isiZulu and isiXhosa.
+Achievement notifications are supported through the application's notification implementation.
 
-## Technology stack
+### Notifications and Reminders
+
+Study Better includes:
+
+- Firebase Cloud Messaging integration for push notifications.
+- Device notification permission handling.
+- FCM token registration.
+- Local reminders for study and assignment activities.
+
+Push notification delivery was tested using a message sent through the Firebase Console.
+
+### Offline Data and Synchronisation
+
+The Android application uses Room as local storage for supported academic information.
+
+Local database entities and repositories are implemented for:
+
+- Modules.
+- Assignments.
+- Study sessions.
+- Academic resources.
+
+WorkManager is used for background synchronisation.
+
+---
+
+## 3. Technology Stack
 
 | Technology | Purpose |
 |---|---|
 | Kotlin | Android application development |
-| XML | Android screen layouts |
-| Android Studio | Android development environment |
-| Room | Local on-device database |
-| WorkManager | Background work and synchronisation |
-| Firebase Cloud Messaging | Push notification delivery |
-| Android Credential Manager / Google Identity | Google Sign-In |
-| ASP.NET Core | REST API |
-| C# | Backend implementation |
+| XML | Android user interface layouts |
+| Android Studio | Development environment |
+| Room | Local database |
+| WorkManager | Background tasks and synchronisation |
+| Firebase Cloud Messaging | Push notifications |
+| Google Credential Manager | Google Sign-In |
+| Retrofit | Android API communication |
+| Gson Converter | JSON conversion |
+| ASP.NET Core | REST API development |
+| C# | Backend programming |
 | Entity Framework Core | Database access |
 | Azure SQL Database | Online relational database |
-| Retrofit | Android-to-API communication |
-| Gson Converter | JSON conversion |
 | JWT Bearer | API authentication |
 | PasswordHasher | Password hashing |
 | JUnit | Unit testing |
 | GitHub | Source control |
-| GitHub Actions | Automated build and test workflow |
+| GitHub Actions | Automated build and testing |
 
-## System architecture
+---
 
-Study Better follows a client-server design.
+## 4. System Architecture
 
-1. The Android application provides the user interface and manages local application data.
-2. Retrofit sends API requests from Android to the ASP.NET Core backend.
-3. The backend validates requests, applies user-specific access rules and handles authentication.
+Study Better follows a client-server architecture.
+
+1. The Android application provides the user interface and handles local application data.
+2. Retrofit communicates with the ASP.NET Core REST API.
+3. The API handles authentication, validates requests and applies user-specific access rules.
 4. Entity Framework Core communicates with Azure SQL Database.
-5. Room stores supported data locally so that the application can access it without relying on a live API connection.
-6. WorkManager is used for scheduled background work, including data synchronisation.
-7. Firebase Cloud Messaging is used for push-notification delivery.
+5. Room provides local storage for supported academic information.
+6. WorkManager handles background tasks and synchronisation.
+7. Firebase Cloud Messaging supports push notification delivery.
 
-## Backend API
+---
+
+## 5. Backend API
 
 The backend is an ASP.NET Core Web API project named `StudyBetter.API`.
 
-The API includes authentication endpoints for registration and login, Google authentication, and user-scoped endpoints for modules, assignments and study sessions.
+The API provides authentication and user-specific endpoints for managing academic information.
 
-Known routes include:
+### Authentication Routes
 
-| Feature | Route |
+| Method | Endpoint | Purpose |
+|---|---|---|
+| POST | `/api/Auth/register` | Register a new account |
+| POST | `/api/Auth/login` | Authenticate using email and password |
+| POST | `/api/Auth/google` | Authenticate using Google Sign-In |
+
+### Academic Routes
+
+| Feature | Endpoint |
 |---|---|
-| Register | `POST /api/Auth/register` |
-| Login | `POST /api/Auth/login` |
-| Google login | `POST /api/Auth/google` |
-| Modules | `api/Modules` |
-| Assignments | `api/Assignments` |
-| Study sessions | `api/StudySessions` |
+| Modules | `/api/Modules` |
+| Assignments | `/api/Assignments` |
+| Study Sessions | `/api/StudySessions` |
 
-The exact supported HTTP methods and request fields are defined by the API controllers and DTOs in the source project.
+The exact supported HTTP methods and request fields are defined by the API controllers and request models.
 
-### Authentication
+### Authentication and Security
 
-For email/password authentication, the API hashes passwords rather than storing them as plain text. After successful authentication, the API returns a JWT. The Android application includes this token in the Authorization header for protected requests.
+The backend uses password hashing instead of storing passwords as plain text.
 
-Google Sign-In obtains an ID token on Android and sends it to the backend. The backend validates the token against the configured Google Web OAuth client ID, checks that the email is verified, and then signs the user in or creates an account.
+After successful authentication, the API returns a JWT authentication token. The Android application stores the token locally and includes it in the Authorization header when accessing protected endpoints.
 
-## Database and local storage
+Google Sign-In obtains an ID token on Android and sends it to the backend for validation.
 
-Azure SQL Database is used for online data. Entity Framework Core provides the backend database access.
+---
 
-Room is used on Android for local data. The local database contains entities for:
-- Modules
-- Assignments
-- Study sessions
-- Academic resources
+## 6. Database and Local Storage
 
-Room migrations are used to update the local database schema as new entities and fields are introduced.
+### Azure SQL Database
 
-## Academic resources
+Azure SQL Database is used for online application data.
 
-The Academic Resources feature allows a student to save resource details such as a title, description, category and optional URL. Resource records are stored locally in Room and can be searched, opened when a URL is supplied, and deleted.
+Entity Framework Core provides the backend with database access.
 
-The current implementation stores resource information and links. It should not be described as uploading or storing the actual contents of PDF or other files unless file storage is added separately.
+### Room Database
 
-## Academic progress
+Room provides local Android storage for supported application data.
 
-The Progress screen uses locally available module, assignment and study-session data to display study time, completed assignments, module progress, XP and level information.
+The local database includes entities for:
 
-The current achievement and XP calculations are application-side progress indicators. They should not be represented as server-validated awards unless persistent achievement handling is added.
+- Modules.
+- Assignments.
+- Study sessions.
+- Academic resources.
 
-## Running the project
+Room migrations are used to update the local database structure as the application develops.
 
-### Android application
+---
+
+## 7. Firebase Cloud Messaging
+
+Firebase Cloud Messaging is integrated into the Android application to support push notifications.
+
+The implementation includes:
+
+- Firebase project configuration.
+- Android Firebase messaging service.
+- FCM token retrieval and storage.
+- Notification permission handling.
+- Notification channel configuration.
+- Incoming notification processing.
+
+A test notification was successfully received on the Android device through Firebase Console.
+
+---
+
+## 8. Running the Project
+
+### Android Application
+
 1. Install Android Studio and the required Android SDK.
-2. Clone or download this repository.
+2. Clone or download the repository.
 3. Open the Android project in Android Studio.
-4. Confirm that `app/google-services.json` is present for Firebase configuration.
-5. Allow Gradle to sync.
-6. Configure the API base URL in `RetrofitClient.kt` to point to the backend environment being used.
-7. Run the app on an emulator or a physical Android device.
+4. Ensure that `app/google-services.json` is present.
+5. Allow Gradle to synchronise.
+6. Configure the API base URL in `RetrofitClient.kt`.
+7. Ensure that the backend API is running and accessible to the Android device.
+8. Run the application on an emulator or physical Android device.
 
 ### Backend API
-1. Install the .NET SDK version required by the backend project.
+
+1. Install the .NET SDK required by the backend project.
 2. Open the `StudyBetter.API` project.
 3. Configure the Azure SQL connection string using User Secrets or environment variables.
-4. Configure `Google:ClientId` using User Secrets or an environment variable.
-5. Run the API project.
-6. Ensure the Android device can reach the API host and that the configured base URL and network settings are correct.
+4. Configure the Google OAuth client ID using User Secrets or environment variables.
+5. Run the backend API.
+6. Ensure that the Android application can reach the configured API address.
 
 Example development command:
 
@@ -147,24 +251,91 @@ Example development command:
 dotnet run --urls "http://0.0.0.0:5293"
 ```
 
-This exposes the development API on the local network interface. Use a secure, hosted HTTPS endpoint for production.
+---
+
+## 9. Testing
+
+Testing activities include:
+
+- Email and password authentication.
+- Google Sign-In on a physical Android device.
+- Module and assignment management.
+- Study-session recording.
+- Local Room database operations.
+- Firebase push notification delivery.
+- Academic resource creation, search and deletion.
+- Academic progress calculations.
+- Unit tests.
+- Automated GitHub Actions builds and tests.
+
+Google Sign-In was successfully tested on a physical device.
+
+A Firebase Console test notification was also successfully received.
+
+The backend authentication and academic endpoints were tested using Swagger.
+
+<img width="1359" height="725" alt="Screenshot 2026-11-07 133552" src="https://github.com/user-attachments/assets/3d93bc29-85a6-4e78-995d-ffcd4587c0e8" />
 
 
-## GitHub Actions
+---
 
-The Android workflow is located at:
+## 10. GitHub Actions
+
+The Android GitHub Actions workflow is located at:
 
 `.github/workflows/android.yml`
 
-The workflow is intended to automate the Android build and unit-test process when changes are pushed or pull requests are opened.
+The workflow automates the project's build and testing process when changes are pushed or pull requests are opened.
 
-## Repository
+The repository's GitHub Actions workflow has completed successfully during development.
 
-GitHub repository: https://github.com/Ethaba/Study-Better
+The latest workflow result can be viewed under the **Actions** tab in the GitHub repository.
 
-## Project structure
+---
 
-The Android project follows the standard Gradle structure:
+## 11. Release and Play Store Preparation
+
+A signed release APK was generated successfully using Android Studio's signing wizard.
+
+### Release Information
+
+| Item | Value |
+|---|---|
+| Application name | Study Better |
+| Application ID | `com.example.studybetter` |
+| Version name | `1.0` |
+| Version code | `1` |
+| Minimum SDK | 24 |
+| Target SDK | 36 |
+| Release format generated | Signed APK |
+| APK filename | `app-release.apk` |
+
+The release APK was approximately 8.2 MB when generated.
+
+<img width="526" height="609" alt="Screenshot 2026-11-07 104833" src="https://github.com/user-attachments/assets/0e4d0b9a-5bb5-424f-adf3-256e855b8824" />
+
+<img width="560" height="392" alt="Screenshot 2026-11-07 105046" src="https://github.com/user-attachments/assets/c155636f-d3da-457a-85aa-f372c96e1b1f" />
+
+
+The release signing keystore is named `StudyBetter.jks`.
+
+### Play Store Preparation Materials
+
+The following materials were prepared:
+
+- Application icon.
+- Promotional feature graphic.
+- Phone screenshots.
+- Short application description.
+- Full application description.
+- Privacy policy.
+- Store listing information.
+
+---
+
+## 12. Repository Structure
+
+The Android application follows the standard Android Studio Gradle project structure.
 
 ```text
 Study-Better/
@@ -189,23 +360,36 @@ Study-Better/
 
 The backend API is maintained in the `StudyBetter.API` project.
 
-## Demonstration video
+---
 
-Previous demonstration video: https://youtu.be/P8KLJHX3Uzs
+## 13. Demonstration Video
 
-Alternative video link: https://drive.google.com/file/d/1TSWU8SD6MR5c1MgIgvlSAW6MMUmhAaNb/view?usp=drive_link
+Previous demonstration video:
 
+https://youtu.be/P8KLJHX3Uzs
 
-## References
+Alternative video:
 
-- Android Developers. Kotlin for Android: https://developer.android.com/kotlin 
-- Android Developers. Test apps on Android: https://developer.android.com/studio/test
-- Android Developers. Room persistence library: https://developer.android.com/training/data-storage/room
-- Android Developers. WorkManager: https://developer.android.com/topic/libraries/architecture/workmanager
-- Firebase. Set up Firebase Cloud Messaging for Android: https://firebase.google.com/docs/cloud-messaging/android/get-started
-- Firebase. Add Firebase to your Android project: https://firebase.google.com/docs/android/setup
-- Google. Credential Manager: https://developer.android.com/identity
-- GitHub Docs. GitHub Actions workflows: https://docs.github.com/en/actions
-- Microsoft. EF Core with Azure SQL: https://learn.microsoft.com/en-us/azure/azure-sql/database/azure-sql-dotnet-entity-framework-core-quickstart
-- Microsoft. EF Core SQL Server provider: https://learn.microsoft.com/en-us/ef/core/providers/sql-server/
-- Square. Retrofit: https://square.github.io/retrofit/
+https://drive.google.com/file/d/1TSWU8SD6MR5c1MgIgvlSAW6MMUmhAaNb/view?usp=drive_link
+
+---
+
+## 14. References
+
+- Android Developers. Kotlin for Android. https://developer.android.com/kotlin
+- Android Developers. Test your app. https://developer.android.com/studio/test
+- Android Developers. Room persistence library. https://developer.android.com/training/data-storage/room
+- Android Developers. WorkManager. https://developer.android.com/topic/libraries/architecture/workmanager
+- Firebase. Firebase Cloud Messaging for Android. https://firebase.google.com/docs/cloud-messaging/android/get-started
+- Firebase. Add Firebase to your Android project. https://firebase.google.com/docs/android/setup
+- Google. Credential Manager. https://developer.android.com/identity
+- GitHub Docs. GitHub Actions. https://docs.github.com/en/actions
+- Microsoft Learn. Azure SQL Database with Entity Framework Core. https://learn.microsoft.com/en-us/azure/azure-sql/database/azure-sql-dotnet-entity-framework-core-quickstart
+- Microsoft Learn. EF Core SQL Server provider. https://learn.microsoft.com/en-us/ef/core/providers/sql-server/
+- Square. Retrofit. https://square.github.io/retrofit/
+
+---
+
+**Study Better**
+
+Plan. Learn. Achieve.
