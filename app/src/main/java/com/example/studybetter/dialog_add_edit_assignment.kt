@@ -3,6 +3,7 @@ package com.example.studybetter
 
 import android.app.DatePickerDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
@@ -13,6 +14,7 @@ import com.example.studybetter.api.AssignmentRequest
 import com.example.studybetter.api.RetrofitClient
 import com.example.studybetter.data.AssignmentRoomRepository
 import com.example.studybetter.data.ModuleRoomRepository
+import com.example.studybetter.data.StudySessionRoomRepository
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.slider.Slider
 import com.google.android.material.textfield.TextInputEditText
@@ -55,10 +57,9 @@ class dialog_add_edit_assignment : AppCompatActivity() {
             -1L
         ).takeIf { it != -1L }
 
-        findViewById<View>(R.id.btn_back)
-            .setOnClickListener {
-                finish()
-            }
+        findViewById<View>(R.id.btn_back).setOnClickListener {
+            finish()
+        }
 
         setUpModuleMenu()
         setUpDatePicker()
@@ -69,14 +70,12 @@ class dialog_add_edit_assignment : AppCompatActivity() {
             loadAssignmentForEditing()
         }
 
-        findViewById<MaterialButton>(R.id.btn_save)
-            .setOnClickListener {
-                saveAssignment()
-            }
+        findViewById<MaterialButton>(R.id.btn_save).setOnClickListener {
+            saveAssignment()
+        }
     }
 
     private fun setUpModuleMenu() {
-
         val moduleInput =
             findViewById<AutoCompleteTextView>(R.id.act_module)
 
@@ -87,7 +86,6 @@ class dialog_add_edit_assignment : AppCompatActivity() {
                 }
 
                 val moduleNames = mutableListOf("General")
-
                 savedModules.forEach { module ->
                     moduleNames.add(module.title)
                 }
@@ -111,21 +109,11 @@ class dialog_add_edit_assignment : AppCompatActivity() {
     }
 
     private fun setUpDatePicker() {
-
         dueDateInput.setOnClickListener {
             DatePickerDialog(
                 this,
                 { _, year, month, day ->
-
-                    dueDate.set(
-                        year,
-                        month,
-                        day,
-                        0,
-                        0,
-                        0
-                    )
-
+                    dueDate.set(year, month, day, 0, 0, 0)
                     dueDate.set(Calendar.MILLISECOND, 0)
 
                     dueDateInput.setText(
@@ -136,9 +124,7 @@ class dialog_add_edit_assignment : AppCompatActivity() {
                     )
 
                     selectedPriority =
-                        AssignmentPriority.fromDaysUntilDue(
-                            daysUntilDue()
-                        )
+                        AssignmentPriority.fromDaysUntilDue(daysUntilDue())
                 },
                 dueDate.get(Calendar.YEAR),
                 dueDate.get(Calendar.MONTH),
@@ -148,7 +134,6 @@ class dialog_add_edit_assignment : AppCompatActivity() {
     }
 
     private fun setUpProgressSlider() {
-
         findViewById<Slider>(R.id.slider_progress)
             .addOnChangeListener { _, value, _ ->
                 progressText.text = "${value.toInt()}%"
@@ -156,25 +141,17 @@ class dialog_add_edit_assignment : AppCompatActivity() {
     }
 
     private fun setUpPriorityButtons() {
-
         findViewById<MaterialButton>(R.id.btn_priority_low)
-            .setOnClickListener {
-                selectedPriority = "Low"
-            }
+            .setOnClickListener { selectedPriority = "Low" }
 
         findViewById<MaterialButton>(R.id.btn_priority_medium)
-            .setOnClickListener {
-                selectedPriority = "Medium"
-            }
+            .setOnClickListener { selectedPriority = "Medium" }
 
         findViewById<MaterialButton>(R.id.btn_priority_high)
-            .setOnClickListener {
-                selectedPriority = "High"
-            }
+            .setOnClickListener { selectedPriority = "High" }
     }
 
     private fun loadAssignmentForEditing() {
-
         val assignmentId = editingAssignmentId ?: return
 
         CoroutineScope(Dispatchers.Main).launch {
@@ -223,15 +200,9 @@ class dialog_add_edit_assignment : AppCompatActivity() {
     }
 
     private fun saveAssignment() {
-
-        val titleLayout =
-            findViewById<TextInputLayout>(R.id.til_title)
-
-        val moduleLayout =
-            findViewById<TextInputLayout>(R.id.til_module)
-
-        val dueDateLayout =
-            findViewById<TextInputLayout>(R.id.til_due_date)
+        val titleLayout = findViewById<TextInputLayout>(R.id.til_title)
+        val moduleLayout = findViewById<TextInputLayout>(R.id.til_module)
+        val dueDateLayout = findViewById<TextInputLayout>(R.id.til_due_date)
 
         val title = findViewById<TextInputEditText>(R.id.et_title)
             .text.toString().trim()
@@ -245,8 +216,7 @@ class dialog_add_edit_assignment : AppCompatActivity() {
                 .text.toString().trim()
 
         val progress =
-            findViewById<Slider>(R.id.slider_progress)
-                .value.toInt()
+            findViewById<Slider>(R.id.slider_progress).value.toInt()
 
         titleLayout.error = null
         moduleLayout.error = null
@@ -287,14 +257,11 @@ class dialog_add_edit_assignment : AppCompatActivity() {
     }
 
     private fun saveAssignmentToServer(assignment: Assignment) {
-
         CoroutineScope(Dispatchers.Main).launch {
-
             val saveButton = findViewById<MaterialButton>(R.id.btn_save)
             saveButton.isEnabled = false
 
             try {
-
                 val selectedModule = withContext(Dispatchers.IO) {
                     moduleRepository.getModules()
                         .firstOrNull { it.title == assignment.module }
@@ -316,7 +283,6 @@ class dialog_add_edit_assignment : AppCompatActivity() {
                 )
 
                 val response = withContext(Dispatchers.IO) {
-
                     if (assignment.id > Int.MAX_VALUE) {
                         RetrofitClient.api.createAssignment(request)
                     } else {
@@ -328,7 +294,6 @@ class dialog_add_edit_assignment : AppCompatActivity() {
                 }
 
                 if (response.isSuccessful && response.body() != null) {
-
                     val saved = response.body()!!
 
                     val serverAssignment = Assignment(
@@ -342,7 +307,6 @@ class dialog_add_edit_assignment : AppCompatActivity() {
                     )
 
                     withContext(Dispatchers.IO) {
-
                         if (assignment.id != serverAssignment.id) {
                             assignmentRepository.permanentlyDeleteAssignment(
                                 assignment.id
@@ -354,6 +318,8 @@ class dialog_add_edit_assignment : AppCompatActivity() {
                             pending = false
                         )
                     }
+
+                    checkForNewAchievements()
 
                     Toast.makeText(
                         this@dialog_add_edit_assignment,
@@ -375,14 +341,16 @@ class dialog_add_edit_assignment : AppCompatActivity() {
                 }
 
             } catch (e: Exception) {
+                Log.e("StudyBetter", "Assignment server save failed", e)
 
-                // Save locally so the user can continue working offline.
                 withContext(Dispatchers.IO) {
                     assignmentRepository.saveAssignment(
                         assignment,
                         pending = true
                     )
                 }
+
+                checkForNewAchievements()
 
                 Toast.makeText(
                     this@dialog_add_edit_assignment,
@@ -401,8 +369,40 @@ class dialog_add_edit_assignment : AppCompatActivity() {
         }
     }
 
-    private fun daysUntilDue(): Long {
+    private suspend fun checkForNewAchievements() {
+        try {
+            val moduleRepo = ModuleRoomRepository(this)
+            val sessionRepo = StudySessionRoomRepository(this)
 
+            val data = withContext(Dispatchers.IO) {
+                Triple(
+                    assignmentRepository.getAssignments(),
+                    moduleRepo.getModules(),
+                    sessionRepo.getSessions()
+                )
+            }
+
+            val totalStudySeconds = data.third.sumOf {
+                it.durationSeconds.toLong()
+            }
+
+            AchievementNotificationManager.checkAndNotify(
+                this,
+                data.first,
+                data.second,
+                totalStudySeconds
+            )
+
+        } catch (e: Exception) {
+            Log.e(
+                "StudyBetter",
+                "Achievement check after assignment save failed",
+                e
+            )
+        }
+    }
+
+    private fun daysUntilDue(): Long {
         val today = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)

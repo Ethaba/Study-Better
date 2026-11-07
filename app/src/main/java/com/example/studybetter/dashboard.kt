@@ -166,6 +166,13 @@ class dashboard : AppCompatActivity() {
 
                 showLatestAchievements(assignments, modules, studySeconds)
 
+                AchievementNotificationManager.checkAndNotify(
+                    this@dashboard,
+                    assignments,
+                    modules,
+                    studySeconds
+                )
+
                 findViewById<TextView>(R.id.tv_streak).text =
                     getString(R.string.days_count, 0)
 

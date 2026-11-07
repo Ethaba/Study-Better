@@ -94,7 +94,12 @@ class StudyBetterSyncWorker(
 
                             if (!response.isSuccessful || response.body() == null) {
                                 hasFailures = true
-                                Log.e(TAG, "Module creation failed: ${module.id}")
+                                Log.e(
+                                    TAG,
+                                    "Module creation failed. ID: ${module.id}, " +
+                                            "HTTP: ${response.code()}, " +
+                                            "Error: ${response.errorBody()?.string()}"
+                                )
                                 continue
                             }
 

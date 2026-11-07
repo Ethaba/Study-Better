@@ -75,7 +75,29 @@ class assignments : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
+        StudyBetterNotificationScheduler.scheduleDailyStudyReminder(this)
         refreshAssignments()
+    }
+
+    private fun scheduleAssignmentNotifications() {
+        currentAssignments.forEach { assignment ->
+
+            if (assignment.progress >= 100) {
+                StudyBetterNotificationScheduler.cancelAssignmentReminders(
+                    this,
+                    assignment.id
+                )
+            } else {
+                StudyBetterNotificationScheduler.scheduleAssignmentReminders(
+                    this,
+                    assignment.id,
+                    assignment.title,
+                    assignment.dueDateMillis,
+                    assignment.progress
+                )
+            }
+        }
     }
 
     private fun displayAssignments() {
@@ -125,24 +147,20 @@ class assignments : AppCompatActivity() {
         CoroutineScope(Dispatchers.Main).launch {
             try {
 
-                // Load saved assignments from Room first.
                 val localAssignments = withContext(Dispatchers.IO) {
                     assignmentRepository.getAssignments()
                 }
 
                 currentAssignments = localAssignments
+                scheduleAssignmentNotifications()
                 displayAssignments()
 
-                // Refresh from the server when a connection is available.
                 try {
                     val serverAssignments = withContext(Dispatchers.IO) {
-
                         val response = RetrofitClient.api.getAssignments()
 
                         if (!response.isSuccessful) {
-                            throw Exception(
-                                "Server returned ${response.code()}"
-                            )
+                            throw Exception("Server returned ${response.code()}")
                         }
 
                         (response.body() ?: emptyList())
@@ -155,15 +173,14 @@ class assignments : AppCompatActivity() {
                         )
                     }
 
-                    // Reload Room so pending local changes remain visible.
                     currentAssignments = withContext(Dispatchers.IO) {
                         assignmentRepository.getAssignments()
                     }
 
+                    scheduleAssignmentNotifications()
                     displayAssignments()
 
                 } catch (serverError: Exception) {
-                    // Keep showing locally saved assignments if offline.
                     Toast.makeText(
                         this@assignments,
                         "Showing saved assignments. Server sync is unavailable.",
@@ -224,7 +241,6 @@ class assignments : AppCompatActivity() {
         menu.show()
     }
 
-
     private fun confirmDelete(assignment: Assignment) {
 
         AlertDialog.Builder(this)
@@ -234,14 +250,18 @@ class assignments : AppCompatActivity() {
 
                 CoroutineScope(Dispatchers.Main).launch {
                     try {
-                        // Record deletion locally first.
+
                         withContext(Dispatchers.IO) {
                             assignmentRepository.deleteAssignment(
                                 assignment.id
                             )
                         }
 
-                        // Refresh the screen from Room.
+                        StudyBetterNotificationScheduler.cancelAssignmentReminders(
+                            this@assignments,
+                            assignment.id
+                        )
+
                         loadAssignmentsFromRoom()
 
                         Toast.makeText(
@@ -263,12 +283,12 @@ class assignments : AppCompatActivity() {
             .show()
     }
 
-
     private suspend fun loadAssignmentsFromRoom() {
         currentAssignments = withContext(Dispatchers.IO) {
             assignmentRepository.getAssignments()
         }
 
+        scheduleAssignmentNotifications()
         displayAssignments()
     }
 

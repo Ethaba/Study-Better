@@ -24,6 +24,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import com.example.studybetter.data.AssignmentRoomRepository
+import com.example.studybetter.data.ModuleRoomRepository
 
 class study_session : AppCompatActivity() {
 
@@ -201,6 +203,29 @@ class study_session : AppCompatActivity() {
                     .apply()
 
                 Log.d("StudyBetter", "Study session saved to Room")
+
+                // Check whether this session unlocked a new achievement.
+                val assignmentRepository = AssignmentRoomRepository(this@study_session)
+                val moduleRepository = ModuleRoomRepository(this@study_session)
+
+                val achievementData = withContext(Dispatchers.IO) {
+                    Triple(
+                        assignmentRepository.getAssignments(),
+                        moduleRepository.getModules(),
+                        sessionRepository.getSessions()
+                    )
+                }
+
+                val totalStudySeconds = achievementData.third.sumOf {
+                    it.durationSeconds.toLong()
+                }
+
+                AchievementNotificationManager.checkAndNotify(
+                    this@study_session,
+                    achievementData.first,
+                    achievementData.second,
+                    totalStudySeconds
+                )
 
                 uploadStudySession(
                     localId,
