@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35828.75 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudyBetter.API", "StudyBetter.API\StudyBetter.API.csproj", "{EB3F4CDF-6479-404F-9580-C687C82BCC92}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EB3F4CDF-6479-404F-9580-C687C82BCC92}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB3F4CDF-6479-404F-9580-C687C82BCC92}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB3F4CDF-6479-404F-9580-C687C82BCC92}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB3F4CDF-6479-404F-9580-C687C82BCC92}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3F9F0EA6-BEDD-4B58-996D-C3D2257422E2}
+	EndGlobalSection
+EndGlobal

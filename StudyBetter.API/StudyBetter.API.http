@@ -1,0 +1,6 @@
+@StudyBetter.API_HostAddress = http://localhost:5293
+
+GET {{StudyBetter.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
