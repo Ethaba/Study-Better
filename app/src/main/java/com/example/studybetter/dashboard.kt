@@ -1,32 +1,33 @@
+
 package com.example.studybetter
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.TextView
-import android.util.Log
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.studybetter.data.AssignmentRoomRepository
 import com.example.studybetter.data.ModuleRoomRepository
 import com.example.studybetter.data.StudySessionRoomRepository
 import com.example.studybetter.sync.SyncScheduler
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import android.Manifest
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
-import com.google.firebase.messaging.FirebaseMessaging
-import android.widget.Toast
 
 class dashboard : AppCompatActivity() {
 
@@ -41,24 +42,17 @@ class dashboard : AppCompatActivity() {
 
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                val token = task.result
-
-                getSharedPreferences(
-                    "study_better_settings",
-                    MODE_PRIVATE
-                ).edit()
-                    .putString("fcm_token", token)
+                getSharedPreferences("study_better_settings", MODE_PRIVATE)
+                    .edit()
+                    .putString("fcm_token", task.result)
                     .apply()
 
-                android.util.Log.d("StudyBetterFCM", "FCM token received")
+                Log.d("StudyBetterFCM", "FCM token received")
             } else {
-                android.util.Log.e(
-                    "StudyBetterFCM",
-                    "Could not retrieve FCM token",
-                    task.exception
-                )
+                Log.e("StudyBetterFCM", "Could not retrieve FCM token", task.exception)
             }
         }
+
         setContentView(R.layout.activity_dashboard)
 
         assignmentRepository = AssignmentRoomRepository(this)
@@ -68,9 +62,7 @@ class dashboard : AppCompatActivity() {
         SyncScheduler.schedulePeriodicSync(this)
         SyncScheduler.requestImmediateSync(this)
 
-        findViewById<View>(R.id.menu_icon).setOnClickListener { view ->
-            showMenu(view)
-        }
+        findViewById<View>(R.id.menu_icon).setOnClickListener { showMenu(it) }
 
         findViewById<View>(R.id.btn_add_assignment).setOnClickListener {
             openScreen(assignments::class.java)
@@ -94,7 +86,7 @@ class dashboard : AppCompatActivity() {
             if (!granted) {
                 Toast.makeText(
                     this,
-                    "Notifications are disabled. You can enable them in app settings.",
+                    R.string.notifications_disabled,
                     Toast.LENGTH_LONG
                 ).show()
             }
@@ -120,7 +112,6 @@ class dashboard : AppCompatActivity() {
     }
 
     private fun refreshDashboard() {
-
         lifecycleScope.launch {
             try {
                 val dashboardData = withContext(Dispatchers.IO) {
@@ -140,30 +131,23 @@ class dashboard : AppCompatActivity() {
                     MODE_PRIVATE
                 )
 
-                val fullName = prefs.getString(
-                    "full_name",
-                    "Student"
-                ) ?: "Student"
+                val fullName = prefs.getString("full_name", "Student") ?: "Student"
 
                 val totalAssignments = assignments.size
+                val remainingAssignments = assignments.count { it.progress < 100 }
 
-                val remainingAssignments = assignments.count {
-                    it.progress < 100
+                val averageProgress = if (totalAssignments == 0) {
+                    0
+                } else {
+                    assignments.sumOf { it.progress } / totalAssignments
                 }
-
-                val averageProgress =
-                    if (totalAssignments == 0) {
-                        0
-                    } else {
-                        assignments.sumOf { it.progress } / totalAssignments
-                    }
 
                 val studySeconds = sessions.sumOf {
                     it.durationSeconds.toLong()
                 }
 
                 findViewById<TextView>(R.id.tv_greeting).text =
-                    "Hi, $fullName!"
+                    getString(R.string.dashboard_greeting, fullName)
 
                 findViewById<TextView>(R.id.tv_progress_percent).text =
                     "$averageProgress%"
@@ -173,21 +157,17 @@ class dashboard : AppCompatActivity() {
                 ).progress = averageProgress
 
                 findViewById<TextView>(R.id.tv_tasks_total).text =
-                    "$totalAssignments Total"
+                    getString(R.string.tasks_total, totalAssignments)
 
                 findViewById<TextView>(R.id.tv_tasks_remaining).text =
-                    "$remainingAssignments remaining"
+                    getString(R.string.tasks_remaining, remainingAssignments)
 
                 showDueSoonAssignments(assignments)
 
-                showLatestAchievements(
-                    assignments,
-                    modules,
-                    studySeconds
-                )
+                showLatestAchievements(assignments, modules, studySeconds)
 
                 findViewById<TextView>(R.id.tv_streak).text =
-                    "0 days"
+                    getString(R.string.days_count, 0)
 
             } catch (e: Exception) {
                 Log.e("StudyBetter", "Dashboard loading failed", e)
@@ -195,80 +175,47 @@ class dashboard : AppCompatActivity() {
         }
     }
 
-    private fun showDueSoonAssignments(
-        assignments: List<Assignment>
-    ) {
-
-        val dueSoonContainer =
-            findViewById<LinearLayout>(R.id.ll_due_soon)
-
-        val dueSoonAssignments =
-            getDueSoonAssignments(assignments)
+    private fun showDueSoonAssignments(assignments: List<Assignment>) {
+        val dueSoonContainer = findViewById<LinearLayout>(R.id.ll_due_soon)
+        val dueSoonAssignments = getDueSoonAssignments(assignments)
 
         dueSoonContainer.removeAllViews()
 
         if (dueSoonAssignments.isEmpty()) {
+            val noAssignmentsText = TextView(this).apply {
+                text = getString(R.string.no_assignments_due)
+                setTextColor(android.graphics.Color.rgb(51, 51, 51))
+                textSize = 15f
+            }
 
-            val noAssignmentsText =
-                TextView(this).apply {
-                    text = "No assignments due soon"
-                    setTextColor(
-                        android.graphics.Color.rgb(51, 51, 51)
-                    )
-                    textSize = 15f
-                }
-
-            val messageText =
-                TextView(this).apply {
-                    text = "Add an assignment to get started"
-                    setTextColor(
-                        android.graphics.Color.rgb(229, 57, 53)
-                    )
-                    textSize = 14f
-                    setPadding(0, 4, 0, 0)
-                }
+            val messageText = TextView(this).apply {
+                text = getString(R.string.add_assignment_start)
+                setTextColor(android.graphics.Color.rgb(229, 57, 53))
+                textSize = 14f
+                setPadding(0, 4, 0, 0)
+            }
 
             dueSoonContainer.addView(noAssignmentsText)
             dueSoonContainer.addView(messageText)
-
             return
         }
 
-        val dateFormat = SimpleDateFormat(
-            "dd MMM yyyy",
-            Locale.getDefault()
-        )
+        val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
 
         dueSoonAssignments.forEach { assignment ->
+            val assignmentTitle = TextView(this).apply {
+                text = assignment.title
+                setTextColor(android.graphics.Color.rgb(51, 51, 51))
+                textSize = 15f
+                setTypeface(null, android.graphics.Typeface.BOLD)
+            }
 
-            val assignmentTitle =
-                TextView(this).apply {
-                    text = assignment.title
-                    setTextColor(
-                        android.graphics.Color.rgb(51, 51, 51)
-                    )
-                    textSize = 15f
-                    setTypeface(
-                        null,
-                        android.graphics.Typeface.BOLD
-                    )
-                }
-
-            val assignmentDetails =
-                TextView(this).apply {
-                    text = "${assignment.module} • Due ${
-                        dateFormat.format(
-                            Date(assignment.dueDateMillis)
-                        )
-                    }"
-
-                    setTextColor(
-                        android.graphics.Color.rgb(102, 102, 102)
-                    )
-
-                    textSize = 14f
-                    setPadding(0, 4, 0, 12)
-                }
+            val assignmentDetails = TextView(this).apply {
+                text = "${assignment.module} • ${dateFormat.format(Date(assignment.dueDateMillis))}"
+                setTextColor(android.graphics.Color.rgb(102, 102, 102))
+                textSize = 14f
+                setPadding(0, 4, 0, 12)
+            }
 
             dueSoonContainer.addView(assignmentTitle)
             dueSoonContainer.addView(assignmentDetails)
@@ -278,11 +225,8 @@ class dashboard : AppCompatActivity() {
     private fun getDueSoonAssignments(
         assignments: List<Assignment>
     ): List<Assignment> {
-
         val now = System.currentTimeMillis()
-
-        val sevenDaysFromNow =
-            now + (7L * 24 * 60 * 60 * 1000)
+        val sevenDaysFromNow = now + (7L * 24 * 60 * 60 * 1000)
 
         return assignments
             .filter {
@@ -290,9 +234,7 @@ class dashboard : AppCompatActivity() {
                         it.dueDateMillis >= now &&
                         it.dueDateMillis <= sevenDaysFromNow
             }
-            .sortedBy {
-                it.dueDateMillis
-            }
+            .sortedBy { it.dueDateMillis }
     }
 
     private fun showLatestAchievements(
@@ -300,119 +242,88 @@ class dashboard : AppCompatActivity() {
         modules: List<Module>,
         studySeconds: Long
     ) {
-
         val achievementsContainer =
-            findViewById<LinearLayout>(
-                R.id.ll_latest_achievements
-            )
+            findViewById<LinearLayout>(R.id.ll_latest_achievements)
 
         achievementsContainer.removeAllViews()
 
-        val completedAssignments =
-            assignments.count {
-                it.progress == 100
-            }
+        val completedAssignments = assignments.count { it.progress == 100 }
 
-        val unlockedAchievements =
-            mutableListOf<String>()
+        val unlockedAchievements = mutableListOf<String>()
 
         if (modules.isNotEmpty()) {
-            unlockedAchievements.add(
-                "First Steps - Added your first module"
-            )
+            unlockedAchievements.add(getString(R.string.achievement_first_steps))
         }
 
         if (assignments.isNotEmpty()) {
-            unlockedAchievements.add(
-                "Getting Started - Added your first assignment"
-            )
+            unlockedAchievements.add(getString(R.string.achievement_getting_started))
         }
 
         if (completedAssignments >= 1) {
-            unlockedAchievements.add(
-                "Assignment Complete - Completed an assignment"
-            )
+            unlockedAchievements.add(getString(R.string.achievement_assignment_complete))
         }
 
         if (completedAssignments >= 3) {
-            unlockedAchievements.add(
-                "Triple Threat - Completed 3 assignments"
-            )
+            unlockedAchievements.add(getString(R.string.achievement_triple_threat))
         }
 
         if (studySeconds >= 3600) {
-            unlockedAchievements.add(
-                "One Hour - Studied for one hour"
-            )
+            unlockedAchievements.add(getString(R.string.achievement_one_hour))
         }
 
         if (unlockedAchievements.isEmpty()) {
-
-            val noAchievementsText =
-                TextView(this).apply {
-                    text = "No achievements yet. Keep studying!"
-                    setTextColor(
-                        android.graphics.Color.rgb(136, 136, 136)
-                    )
-                    textSize = 14f
-                }
+            val noAchievementsText = TextView(this).apply {
+                text = getString(R.string.no_achievements)
+                setTextColor(android.graphics.Color.rgb(136, 136, 136))
+                textSize = 14f
+            }
 
             achievementsContainer.addView(noAchievementsText)
             return
         }
 
-        unlockedAchievements
-            .take(3)
-            .forEach { achievement ->
-
-                val achievementText =
-                    TextView(this).apply {
-                        text = "✓ $achievement"
-                        setTextColor(
-                            android.graphics.Color.rgb(51, 51, 51)
-                        )
-                        textSize = 14f
-                        setPadding(0, 8, 0, 8)
-                    }
-
-                achievementsContainer.addView(achievementText)
+        unlockedAchievements.take(3).forEach { achievement ->
+            val achievementText = TextView(this).apply {
+                text = "✓ $achievement"
+                setTextColor(android.graphics.Color.rgb(51, 51, 51))
+                textSize = 14f
+                setPadding(0, 8, 0, 8)
             }
+
+            achievementsContainer.addView(achievementText)
+        }
     }
 
     private fun showMenu(anchor: View) {
-
         val popupMenu = PopupMenu(this, anchor)
 
-        popupMenu.menu.add("Profile & Settings")
-        popupMenu.menu.add("Modules")
-        popupMenu.menu.add("Assignments")
-        popupMenu.menu.add("Study Sessions")
-        popupMenu.menu.add("Academic Resources")
-        popupMenu.menu.add("Achievements")
+        popupMenu.menu.add(getString(R.string.menu_profile))
+        popupMenu.menu.add(getString(R.string.menu_modules))
+        popupMenu.menu.add(getString(R.string.menu_assignments))
+        popupMenu.menu.add(getString(R.string.menu_study_sessions))
+        popupMenu.menu.add(getString(R.string.menu_academic_resources))
+        popupMenu.menu.add(getString(R.string.menu_achievements))
 
         popupMenu.setOnMenuItemClickListener { item ->
-
-            when (item.title) {
-
-                "Profile & Settings" ->
+            when (item.title.toString()) {
+                getString(R.string.menu_profile) ->
                     openScreen(profile_settings::class.java)
 
-                "Modules" ->
+                getString(R.string.menu_modules) ->
                     openScreen(modules::class.java)
 
-                "Assignments" ->
+                getString(R.string.menu_assignments) ->
                     openScreen(assignments::class.java)
 
-                "Study Sessions" ->
+                getString(R.string.menu_study_sessions) ->
                     openScreen(study_session_history::class.java)
 
-                "Academic Resources" ->
+                getString(R.string.menu_academic_resources) ->
                     openScreen(academic_resources::class.java)
 
-                "Achievements" ->
+                getString(R.string.menu_achievements) ->
                     openScreen(achievements::class.java)
             }
-
             true
         }
 
@@ -420,8 +331,6 @@ class dashboard : AppCompatActivity() {
     }
 
     private fun openScreen(screen: Class<*>) {
-        startActivity(
-            Intent(this, screen)
-        )
+        startActivity(Intent(this, screen))
     }
 }

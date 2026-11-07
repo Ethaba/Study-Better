@@ -1,3 +1,4 @@
+
 package com.example.studybetter
 
 import android.content.Intent
@@ -5,11 +6,17 @@ import android.os.Bundle
 import android.view.View
 import android.widget.CalendarView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.studybetter.data.AssignmentRoomRepository
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -20,12 +27,15 @@ class calendar : AppCompatActivity() {
     private lateinit var adapter: AssignmentAdapter
     private lateinit var selectedDateText: TextView
     private lateinit var emptyStateText: TextView
+    private lateinit var assignmentRepository: AssignmentRoomRepository
 
     private var selectedTimeMillis: Long = System.currentTimeMillis()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_calendar)
+
+        assignmentRepository = AssignmentRoomRepository(this)
 
         selectedDateText = findViewById(R.id.tv_selected_date)
         emptyStateText = findViewById(R.id.tv_empty_state)
@@ -41,56 +51,32 @@ class calendar : AppCompatActivity() {
         }
 
         findViewById<RecyclerView>(R.id.rv_day_assignments).apply {
-
             layoutManager = LinearLayoutManager(this@calendar)
-
             adapter = this@calendar.adapter
         }
 
-        val calendarView =
-            findViewById<CalendarView>(R.id.calendar_view)
+        val calendarView = findViewById<CalendarView>(R.id.calendar_view)
 
-        selectedTimeMillis =
-            savedInstanceState?.getLong(
-                "selected_date",
-                calendarView.date
-            ) ?: calendarView.date
+        selectedTimeMillis = savedInstanceState?.getLong(
+            "selected_date",
+            calendarView.date
+        ) ?: calendarView.date
 
         calendarView.date = selectedTimeMillis
 
         updateSelectedDateDisplay(selectedTimeMillis)
         showAssignmentsForDate()
 
-        calendarView.setOnDateChangeListener {
-                _,
-                year,
-                month,
-                dayOfMonth ->
+        calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
 
             val selectedCalendar = Calendar.getInstance().apply {
-
-                set(
-                    year,
-                    month,
-                    dayOfMonth,
-                    0,
-                    0,
-                    0
-                )
-
-                set(
-                    Calendar.MILLISECOND,
-                    0
-                )
+                set(year, month, dayOfMonth, 0, 0, 0)
+                set(Calendar.MILLISECOND, 0)
             }
 
-            selectedTimeMillis =
-                selectedCalendar.timeInMillis
+            selectedTimeMillis = selectedCalendar.timeInMillis
 
-            updateSelectedDateDisplay(
-                selectedTimeMillis
-            )
-
+            updateSelectedDateDisplay(selectedTimeMillis)
             showAssignmentsForDate()
         }
 
@@ -98,159 +84,133 @@ class calendar : AppCompatActivity() {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-
-        outState.putLong(
-            "selected_date",
-            selectedTimeMillis
-        )
-
+        outState.putLong("selected_date", selectedTimeMillis)
         super.onSaveInstanceState(outState)
     }
 
     override fun onResume() {
         super.onResume()
-
-        showAssignmentsForDate()
+        if (::assignmentRepository.isInitialized) {
+            showAssignmentsForDate()
+        }
     }
 
-    private fun updateSelectedDateDisplay(
-        timeMillis: Long
-    ) {
-
+    private fun updateSelectedDateDisplay(timeMillis: Long) {
         val dateFormat = SimpleDateFormat(
             "EEEE, dd MMMM yyyy",
             Locale.getDefault()
         )
 
-        selectedDateText.text =
-            dateFormat.format(
-                Date(timeMillis)
-            )
+        selectedDateText.text = dateFormat.format(Date(timeMillis))
     }
 
     private fun showAssignmentsForDate() {
 
-        val allAssignments =
-            AssignmentStorage.getAssignments(this)
+        lifecycleScope.launch {
+            try {
+                val allAssignments = withContext(Dispatchers.IO) {
+                    assignmentRepository.getAssignments()
+                }
 
-        val targetCalendar =
-            Calendar.getInstance().apply {
-                timeInMillis = selectedTimeMillis
-            }
+                val targetCalendar = Calendar.getInstance().apply {
+                    timeInMillis = selectedTimeMillis
+                }
 
-        val targetYear =
-            targetCalendar.get(Calendar.YEAR)
+                val targetYear = targetCalendar.get(Calendar.YEAR)
+                val targetMonth = targetCalendar.get(Calendar.MONTH)
+                val targetDay = targetCalendar.get(Calendar.DAY_OF_MONTH)
 
-        val targetMonth =
-            targetCalendar.get(Calendar.MONTH)
+                val filteredAssignments = allAssignments.filter { assignment ->
 
-        val targetDay =
-            targetCalendar.get(Calendar.DAY_OF_MONTH)
-
-        val filteredAssignments =
-            allAssignments.filter { assignment ->
-
-                val assignmentCalendar =
-                    Calendar.getInstance().apply {
-                        timeInMillis =
-                            assignment.dueDateMillis
+                    val assignmentCalendar = Calendar.getInstance().apply {
+                        timeInMillis = assignment.dueDateMillis
                     }
 
-                assignmentCalendar.get(Calendar.YEAR) ==
-                        targetYear &&
-                        assignmentCalendar.get(Calendar.MONTH) ==
-                        targetMonth &&
-                        assignmentCalendar.get(Calendar.DAY_OF_MONTH) ==
-                        targetDay
-            }.sortedBy {
-                it.dueDateMillis
-            }
+                    assignmentCalendar.get(Calendar.YEAR) == targetYear &&
+                            assignmentCalendar.get(Calendar.MONTH) == targetMonth &&
+                            assignmentCalendar.get(Calendar.DAY_OF_MONTH) == targetDay
 
-        adapter.updateAssignments(
-            filteredAssignments
-        )
+                }.sortedBy {
+                    it.dueDateMillis
+                }
 
-        emptyStateText.visibility =
-            if (filteredAssignments.isEmpty()) {
-                View.VISIBLE
-            } else {
-                View.GONE
+                adapter.updateAssignments(filteredAssignments)
+
+                emptyStateText.visibility =
+                    if (filteredAssignments.isEmpty()) {
+                        View.VISIBLE
+                    } else {
+                        View.GONE
+                    }
+
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this@calendar,
+                    "Unable to load assignments.",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
+        }
     }
 
-    private fun confirmDelete(
-        assignment: Assignment
-    ) {
+    private fun confirmDelete(assignment: Assignment) {
 
         AlertDialog.Builder(this)
             .setTitle("Delete assignment")
-            .setMessage(
-                "Delete ${assignment.title}?"
-            )
+            .setMessage("Delete ${assignment.title}?")
             .setPositiveButton("Delete") { _, _ ->
 
-                AssignmentStorage.deleteAssignment(
-                    this,
-                    assignment.id
-                )
+                lifecycleScope.launch {
+                    try {
+                        withContext(Dispatchers.IO) {
+                            assignmentRepository.deleteAssignment(assignment.id)
+                        }
 
-                showAssignmentsForDate()
+                        showAssignmentsForDate()
 
+                        Toast.makeText(
+                            this@calendar,
+                            "Assignment deleted",
+                            Toast.LENGTH_SHORT
+                        ).show()
+
+                    } catch (e: Exception) {
+                        Toast.makeText(
+                            this@calendar,
+                            "Could not delete assignment.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
             }
-            .setNegativeButton(
-                "Cancel",
-                null
-            )
+            .setNegativeButton("Cancel", null)
             .show()
     }
 
     private fun setUpBottomNavigation() {
 
-        val bottomNav =
-            findViewById<BottomNavigationView>(
-                R.id.bottom_nav
-            )
+        val bottomNav = findViewById<BottomNavigationView>(
+            R.id.bottom_nav
+        )
 
-        bottomNav.selectedItemId =
-            R.id.nav_calendar
+        bottomNav.selectedItemId = R.id.nav_calendar
 
         bottomNav.setOnItemSelectedListener { item ->
 
             when (item.itemId) {
 
                 R.id.nav_dashboard -> {
-
-                    startActivity(
-                        Intent(
-                            this,
-                            dashboard::class.java
-                        )
-                    )
-
+                    startActivity(Intent(this, dashboard::class.java))
                     true
                 }
 
                 R.id.nav_modules -> {
-
-                    startActivity(
-                        Intent(
-                            this,
-                            modules::class.java
-                        )
-                    )
-
+                    startActivity(Intent(this, modules::class.java))
                     true
                 }
 
                 R.id.nav_progress -> {
-
-                    startActivity(
-                        Intent(
-                            this,
-                            progress::class.java
-                        )
-                    )
-
+                    startActivity(Intent(this, progress::class.java))
                     true
                 }
 

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <string name="app_name">StudyBetter</string>
+    <string name="dashboard_greeting">Molo, %1$s!</string>
+    <string name="dashboard_subtitle">Qhubeka ufunde, qhubeka ukhule.</string>
+    <string name="assignments_due_soon">Izabelo eziza kunikezelwa kungekudala</string>
+    <string name="no_assignments_due">Akukho zabelo ziza kunikezelwa kungekudala</string>
+    <string name="add_assignment_start">Yongeza isabelo ukuze uqalise</string>
+    <string name="todays_progress">Inkqubela yanamhlanje</string>
+    <string name="study_streak">Iintsuku zokufunda zilandelelana</string>
+    <string name="days_count">Iintsuku eziyi-%1$d</string>
+    <string name="tasks">Imisebenzi</string>
+    <string name="tasks_total">Iyonke: %1$d</string>
+    <string name="tasks_remaining">Eseleyo: %1$d</string>
+    <string name="add_assignment">Yongeza\nIsabelo</string>
+    <string name="start_study_session">Qala\nIxesha lokufunda</string>
+    <string name="add_module">Yongeza\nImodyuli</string>
+    <string name="view_calendar">Jonga\nIkhalenda</string>
+    <string name="latest_achievements">Impumelelo zakutshanje</string>
+    <string name="no_achievements">Akukho mpumelelo okwangoku. Qhubeka ufunda!</string>
+    <string name="achievement_first_steps">Amanyathelo okuqala - Wongeze imodyuli yakho yokuqala</string>
+    <string name="achievement_getting_started">Ukuqalisa - Wongeze isabelo sakho sokuqala</string>
+    <string name="achievement_assignment_complete">Isabelo sigqityiwe - Ugqibe isabelo</string>
+    <string name="achievement_triple_threat">Impumelelo kathathu - Ugqibe izabelo ezintathu</string>
+    <string name="achievement_one_hour">Iyure enye - Ufunde iyure enye</string>
+    <string name="menu_profile">Iprofayile kunye noseto</string>
+    <string name="menu_modules">Iimodyuli</string>
+    <string name="menu_assignments">Izabelo</string>
+    <string name="menu_study_sessions">Amaxesha okufunda</string>
+    <string name="menu_academic_resources">Izixhobo zokufunda</string>
+    <string name="menu_achievements">Impumelelo</string>
+    <string name="notifications_disabled">Izaziso zivaliwe. Ungazivula kuseto lwe-app.</string>
+    <string name="open_menu">Vula imenyu</string>
+    <string name="notifications">Izaziso</string>
+    <string name="add_module_description">Yongeza imodyuli</string>
+    <string name="view_calendar_description">Jonga ikhalenda</string>
+
+    <string name="profile_title">Iprofayile kunye noseto</string>
+    <string name="profile_picture">Umfanekiso weprofayile</string>
+    <string name="student">Umfundi</string>
+    <string name="no_account_connected">Akukho akhawunti iqhagamshelweyo</string>
+    <string name="level_zero">Inqanaba 0</string>
+    <string name="account">Iakhawunti</string>
+    <string name="edit_profile">Hlela iprofayile</string>
+    <string name="study_goal">Injongo yokufunda</string>
+    <string name="language">Ulwimi</string>
+    <string name="english">IsiNgesi</string>
+    <string name="theme">Umxholo</string>
+    <string name="light">Ukukhanya</string>
+    <string name="preferences">Izinto ozikhethayo</string>
+    <string name="on">Kuvuliwe</string>
+    <string name="synchronization">Ungqamaniso</string>
+    <string name="synced_just_now">Ungqamaniso lwenziwe ngoku</string>
+    <string name="logout">Phuma</string>
+    <string name="back">Emva</string>
+</resources>

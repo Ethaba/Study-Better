@@ -28,7 +28,7 @@
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:clickable="true"
-                android:contentDescription="Open menu"
+                android:contentDescription="@string/open_menu"
                 android:focusable="true"
                 android:padding="10dp"
                 android:src="@drawable/ic_menu" />
@@ -44,7 +44,7 @@
                 android:maxLines="1"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"
-                android:text="Hi, User!"
+                android:text="@string/dashboard_greeting"
                 android:textColor="#000000"
                 android:textSize="22sp"
                 android:textStyle="bold" />
@@ -55,7 +55,7 @@
                 android:layout_height="48dp"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:contentDescription="Notifications"
+                android:contentDescription="@string/notifications"
                 android:padding="10dp"
                 android:src="@drawable/ic_notifications_none" />
 
@@ -67,7 +67,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="48dp"
             android:layout_marginBottom="20dp"
-            android:text="Keep learning, keep growing."
+            android:text="@string/dashboard_subtitle"
             android:textColor="#666666"
             android:textSize="15sp" />
 
@@ -92,7 +92,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
-                    android:text="Assignments due soon"
+                    android:text="@string/assignments_due_soon"
                     android:textColor="#000000"
                     android:textSize="17sp"
                     android:textStyle="bold" />
@@ -154,7 +154,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
-                        android:text="Today's Progress"
+                        android:text="@string/todays_progress"
                         android:textColor="#000000"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -213,7 +213,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
-                        android:text="Study Streak"
+                        android:text="@string/study_streak"
                         android:textColor="#000000"
                         android:textSize="14sp"
                         android:textStyle="bold" />
@@ -271,7 +271,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="12dp"
-                    android:text="Tasks"
+                    android:text="@string/tasks"
                     android:textColor="#000000"
                     android:textSize="16sp"
                     android:textStyle="bold" />
@@ -350,7 +350,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:gravity="center"
-                    android:text="Add\nAssignment"
+                    android:text="@string/add_assignment"
                     android:textColor="#333333"
                     android:textSize="11sp" />
 
@@ -386,7 +386,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:gravity="center"
-                    android:text="Start\nStudy Session"
+                    android:text="@string/start_study_session"
                     android:textColor="#333333"
                     android:textSize="11sp" />
 
@@ -406,7 +406,7 @@
                 <ImageView
                     android:layout_width="52dp"
                     android:layout_height="52dp"
-                    android:contentDescription="Add Module"
+                    android:contentDescription="@string/add_module_description"
                     android:src="@drawable/ic_book" />
 
                 <TextView
@@ -414,7 +414,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:gravity="center"
-                    android:text="Add\nModule"
+                    android:text="@string/add_module"
                     android:textColor="#333333"
                     android:textSize="11sp" />
 
@@ -434,7 +434,7 @@
                 <ImageView
                     android:layout_width="52dp"
                     android:layout_height="52dp"
-                    android:contentDescription="View Calendar"
+                    android:contentDescription="@string/view_calendar_description"
                     android:src="@drawable/ic_calendar" />
 
                 <TextView
@@ -442,7 +442,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:gravity="center"
-                    android:text="View\nCalendar"
+                    android:text="@string/view_calendar"
                     android:textColor="#333333"
                     android:textSize="11sp" />
 
@@ -455,7 +455,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
-            android:text="Latest Achievements"
+            android:text="@string/latest_achievements"
             android:textColor="#000000"
             android:textSize="16sp"
             android:textStyle="bold" />

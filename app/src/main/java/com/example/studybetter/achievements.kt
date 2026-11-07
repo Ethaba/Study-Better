@@ -1,3 +1,4 @@
+
 package com.example.studybetter
 
 import android.content.Intent
@@ -8,16 +9,28 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.studybetter.data.AssignmentRoomRepository
+import com.example.studybetter.data.ModuleRoomRepository
+import com.example.studybetter.data.StudySessionRoomRepository
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.card.MaterialCardView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class achievements : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var summaryText: TextView
+
+    private lateinit var assignmentRepository: AssignmentRoomRepository
+    private lateinit var moduleRepository: ModuleRoomRepository
+    private lateinit var studySessionRepository: StudySessionRoomRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +38,10 @@ class achievements : AppCompatActivity() {
 
         summaryText = findViewById(R.id.tv_summary)
         recyclerView = findViewById(R.id.rv_achievements)
+
+        assignmentRepository = AssignmentRoomRepository(this)
+        moduleRepository = ModuleRoomRepository(this)
+        studySessionRepository = StudySessionRoomRepository(this)
 
         findViewById<com.google.android.material.appbar.MaterialToolbar>(
             R.id.toolbar
@@ -44,178 +61,193 @@ class achievements : AppCompatActivity() {
 
     private fun loadAchievements() {
 
-        val assignments = AssignmentStorage.getAssignments(this)
-        val modules = ModuleStorage.getModules(this)
+        lifecycleScope.launch {
 
-        val preferences = getSharedPreferences(
-            "study_better_settings",
-            MODE_PRIVATE
-        )
+            try {
+                val (assignments, modules, sessions) = withContext(Dispatchers.IO) {
+                    Triple(
+                        assignmentRepository.getAssignments(),
+                        moduleRepository.getModules(),
+                        studySessionRepository.getSessions()
+                    )
+                }
 
-        val studySeconds = preferences.getLong(
-            "study_seconds",
-            0L
-        )
+                val completedAssignments = assignments.count {
+                    it.progress == 100
+                }
 
-        val completedAssignments = assignments.count {
-            it.progress == 100
+                val activeAssignments = assignments.count {
+                    it.progress < 100
+                }
+
+                val studySeconds = sessions.sumOf {
+                    it.durationSeconds.toLong()
+                }
+
+                val achievements = listOf(
+
+                    Achievement(
+                        "First Steps",
+                        "Add your first module",
+                        modules.isNotEmpty()
+                    ),
+
+                    Achievement(
+                        "Getting Started",
+                        "Add your first assignment",
+                        assignments.isNotEmpty()
+                    ),
+
+                    Achievement(
+                        "Assignment Complete",
+                        "Complete your first assignment",
+                        completedAssignments >= 1
+                    ),
+
+                    Achievement(
+                        "Triple Threat",
+                        "Complete 3 assignments",
+                        completedAssignments >= 3
+                    ),
+
+                    Achievement(
+                        "Assignment Master",
+                        "Complete 5 assignments",
+                        completedAssignments >= 5
+                    ),
+
+                    Achievement(
+                        "Study Session",
+                        "Complete your first study session",
+                        sessions.isNotEmpty()
+                    ),
+
+                    Achievement(
+                        "One Hour",
+                        "Study for a total of 60 minutes",
+                        studySeconds >= 60 * 60
+                    ),
+
+                    Achievement(
+                        "Study Time",
+                        "Study for a total of 5 hours",
+                        studySeconds >= 5 * 60 * 60
+                    ),
+
+                    Achievement(
+                        "Dedicated Student",
+                        "Study for a total of 10 hours",
+                        studySeconds >= 10 * 60 * 60
+                    ),
+
+                    Achievement(
+                        "10 Assignments",
+                        "Complete 10 assignments",
+                        completedAssignments >= 10
+                    ),
+
+                    Achievement(
+                        "15 Assignments",
+                        "Complete 15 assignments",
+                        completedAssignments >= 15
+                    ),
+
+                    Achievement(
+                        "20 Assignments",
+                        "Complete 20 assignments",
+                        completedAssignments >= 20
+                    ),
+
+                    Achievement(
+                        "Module Builder",
+                        "Add 3 modules",
+                        modules.size >= 3
+                    ),
+
+                    Achievement(
+                        "Module Collector",
+                        "Add 5 modules",
+                        modules.size >= 5
+                    ),
+
+                    Achievement(
+                        "Busy Student",
+                        "Have 5 active assignments",
+                        activeAssignments >= 5
+                    ),
+
+                    Achievement(
+                        "Organised",
+                        "Have 10 assignments saved",
+                        assignments.size >= 10
+                    ),
+
+                    Achievement(
+                        "Halfway There",
+                        "Complete 12 assignments",
+                        completedAssignments >= 12
+                    ),
+
+                    Achievement(
+                        "Study Champion",
+                        "Study for a total of 20 hours",
+                        studySeconds >= 20 * 60 * 60
+                    ),
+
+                    Achievement(
+                        "25 Assignments",
+                        "Complete 25 assignments",
+                        completedAssignments >= 25
+                    ),
+
+                    Achievement(
+                        "30 Assignments",
+                        "Complete 30 assignments",
+                        completedAssignments >= 30
+                    ),
+
+                    Achievement(
+                        "Long Study Session",
+                        "Study for a total of 30 hours",
+                        studySeconds >= 30 * 60 * 60
+                    ),
+
+                    Achievement(
+                        "40 Assignments",
+                        "Complete 40 assignments",
+                        completedAssignments >= 40
+                    ),
+
+                    Achievement(
+                        "50 Assignments",
+                        "Complete 50 assignments",
+                        completedAssignments >= 50
+                    ),
+
+                    Achievement(
+                        "Study Legend",
+                        "Study for a total of 50 hours",
+                        studySeconds >= 50 * 60 * 60
+                    )
+                )
+
+                val unlockedCount = achievements.count {
+                    it.unlocked
+                }
+
+                summaryText.text =
+                    "$unlockedCount of ${achievements.size} achievements unlocked"
+
+                recyclerView.adapter = AchievementAdapter(achievements)
+
+            } catch (e: Exception) {
+                Toast.makeText(
+                    this@achievements,
+                    "Unable to load achievements.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
-
-        val achievements = listOf(
-
-            Achievement(
-                "First Steps",
-                "Add your first module",
-                modules.isNotEmpty()
-            ),
-
-            Achievement(
-                "Getting Started",
-                "Add your first assignment",
-                assignments.isNotEmpty()
-            ),
-
-            Achievement(
-                "Assignment Complete",
-                "Complete your first assignment",
-                completedAssignments >= 1
-            ),
-
-            Achievement(
-                "Triple Threat",
-                "Complete 3 assignments",
-                completedAssignments >= 3
-            ),
-
-            Achievement(
-                "Assignment Master",
-                "Complete 5 assignments",
-                completedAssignments >= 5
-            ),
-
-            Achievement(
-                "Study Session",
-                "Complete your first study session",
-                studySeconds > 0
-            ),
-
-            Achievement(
-                "One Hour",
-                "Study for a total of 60 minutes",
-                studySeconds >= 60 * 60
-            ),
-
-            Achievement(
-                "Study Time",
-                "Study for a total of 5 hours",
-                studySeconds >= 5 * 60 * 60
-            ),
-
-            Achievement(
-                "Dedicated Student",
-                "Study for a total of 10 hours",
-                studySeconds >= 10 * 60 * 60
-            ),
-
-            Achievement(
-                "10 Assignments",
-                "Complete 10 assignments",
-                completedAssignments >= 10
-            ),
-
-            Achievement(
-                "15 Assignments",
-                "Complete 15 assignments",
-                completedAssignments >= 15
-            ),
-
-            Achievement(
-                "20 Assignments",
-                "Complete 20 assignments",
-                completedAssignments >= 20
-            ),
-
-            Achievement(
-                "Module Builder",
-                "Add 3 modules",
-                modules.size >= 3
-            ),
-
-            Achievement(
-                "Module Collector",
-                "Add 5 modules",
-                modules.size >= 5
-            ),
-
-            Achievement(
-                "Busy Student",
-                "Have 5 active assignments",
-                assignments.count { it.progress < 100 } >= 5
-            ),
-
-            Achievement(
-                "Organised",
-                "Have 10 assignments saved",
-                assignments.size >= 10
-            ),
-
-            Achievement(
-                "Halfway There",
-                "Complete 12 assignments",
-                completedAssignments >= 12
-            ),
-
-            Achievement(
-                "Study Champion",
-                "Study for a total of 20 hours",
-                studySeconds >= 20 * 60 * 60
-            ),
-
-            Achievement(
-                "25 Assignments",
-                "Complete 25 assignments",
-                completedAssignments >= 25
-            ),
-
-            Achievement(
-                "30 Assignments",
-                "Complete 30 assignments",
-                completedAssignments >= 30
-            ),
-
-            Achievement(
-                "Long Study Session",
-                "Study for a total of 30 hours",
-                studySeconds >= 30 * 60 * 60
-            ),
-
-            Achievement(
-                "40 Assignments",
-                "Complete 40 assignments",
-                completedAssignments >= 40
-            ),
-
-            Achievement(
-                "50 Assignments",
-                "Complete 50 assignments",
-                completedAssignments >= 50
-            ),
-
-            Achievement(
-                "Study Legend",
-                "Study for a total of 50 hours",
-                studySeconds >= 50 * 60 * 60
-            )
-        )
-
-        val unlockedCount = achievements.count {
-            it.unlocked
-        }
-
-        summaryText.text =
-            "$unlockedCount of ${achievements.size} achievements unlocked"
-
-        recyclerView.adapter = AchievementAdapter(achievements)
     }
 
     private fun setUpBottomNavigation() {
@@ -299,12 +331,7 @@ class AchievementAdapter(
                     RecyclerView.LayoutParams.MATCH_PARENT,
                     RecyclerView.LayoutParams.WRAP_CONTENT
                 ).apply {
-                    setMargins(
-                        0,
-                        0,
-                        0,
-                        12
-                    )
+                    setMargins(0, 0, 0, 12)
                 }
 
             radius = 14f
@@ -315,16 +342,9 @@ class AchievementAdapter(
         }
 
         val row = LinearLayout(context).apply {
-
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-
-            setPadding(
-                16,
-                14,
-                16,
-                14
-            )
+            setPadding(16, 14, 16, 14)
         }
 
         val icon = ImageView(context).apply {
@@ -332,17 +352,9 @@ class AchievementAdapter(
             id = android.R.id.icon
 
             layoutParams =
-                LinearLayout.LayoutParams(
-                    48,
-                    48
-                )
+                LinearLayout.LayoutParams(48, 48)
 
-            setPadding(
-                10,
-                10,
-                10,
-                10
-            )
+            setPadding(10, 10, 10, 10)
         }
 
         val textContainer = LinearLayout(context).apply {
@@ -362,9 +374,9 @@ class AchievementAdapter(
         val title = TextView(context).apply {
 
             id = android.R.id.text1
-
             textSize = 16f
             setTextColor(Color.BLACK)
+
             setTypeface(
                 null,
                 android.graphics.Typeface.BOLD
@@ -374,7 +386,6 @@ class AchievementAdapter(
         val description = TextView(context).apply {
 
             id = android.R.id.text2
-
             textSize = 13f
             setTextColor(Color.DKGRAY)
 
@@ -419,10 +430,7 @@ class AchievementAdapter(
             )
 
             holder.title.setTextColor(Color.BLACK)
-
-            holder.description.setTextColor(
-                Color.DKGRAY
-            )
+            holder.description.setTextColor(Color.DKGRAY)
 
         } else {
 
@@ -430,17 +438,10 @@ class AchievementAdapter(
                 android.R.drawable.ic_lock_lock
             )
 
-            holder.icon.setBackgroundColor(
-                Color.LTGRAY
-            )
+            holder.icon.setBackgroundColor(Color.LTGRAY)
 
-            holder.title.setTextColor(
-                Color.GRAY
-            )
-
-            holder.description.setTextColor(
-                Color.GRAY
-            )
+            holder.title.setTextColor(Color.GRAY)
+            holder.description.setTextColor(Color.GRAY)
         }
     }
 

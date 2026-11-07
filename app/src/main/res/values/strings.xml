@@ -1,3 +1,67 @@
+
 <resources>
     <string name="app_name">StudyBetter</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_greeting">Hi, %1$s!</string>
+    <string name="dashboard_subtitle">Keep learning, keep growing.</string>
+    <string name="assignments_due_soon">Assignments due soon</string>
+    <string name="no_assignments_due">No assignments due soon</string>
+    <string name="add_assignment_start">Add an assignment to get started</string>
+    <string name="todays_progress">Today\'s Progress</string>
+    <string name="study_streak">Study Streak</string>
+    <string name="days_count">%1$d days</string>
+    <string name="tasks">Tasks</string>
+    <string name="tasks_total">%1$d Total</string>
+    <string name="tasks_remaining">%1$d remaining</string>
+    <string name="add_assignment">Add\nAssignment</string>
+    <string name="start_study_session">Start\nStudy Session</string>
+    <string name="add_module">Add\nModule</string>
+    <string name="view_calendar">View\nCalendar</string>
+    <string name="latest_achievements">Latest Achievements</string>
+    <string name="no_achievements">No achievements yet. Keep studying!</string>
+
+    <string name="profile_title">Profile &amp; Settings</string>
+    <string name="profile_picture">Profile picture</string>
+    <string name="student">Student</string>
+    <string name="no_account_connected">No account connected</string>
+    <string name="level_zero">Level 0</string>
+    <string name="account">Account</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="study_goal">Study Goal</string>
+    <string name="language">Language</string>
+    <string name="english">English</string>
+    <string name="theme">Theme</string>
+    <string name="light">Light</string>
+    <string name="preferences">Preferences</string>
+    <string name="on">On</string>
+    <string name="synchronization">Synchronization</string>
+    <string name="synced_just_now">Synced just now</string>
+    <string name="logout">Logout</string>
+    <string name="back">Back</string>
+
+    <!-- Achievements -->
+    <string name="achievement_first_steps">First Steps - Added your first module</string>
+    <string name="achievement_getting_started">Getting Started - Added your first assignment</string>
+    <string name="achievement_assignment_complete">Assignment Complete - Completed an assignment</string>
+    <string name="achievement_triple_threat">Triple Threat - Completed 3 assignments</string>
+    <string name="achievement_one_hour">One Hour - Studied for one hour</string>
+
+    <!-- Navigation -->
+    <string name="menu_profile">Profile &amp; Settings</string>
+    <string name="menu_modules">Modules</string>
+    <string name="menu_assignments">Assignments</string>
+    <string name="menu_study_sessions">Study Sessions</string>
+    <string name="menu_academic_resources">Academic Resources</string>
+    <string name="menu_achievements">Achievements</string>
+
+    <!-- Notifications -->
+    <string name="notifications_disabled">Notifications are disabled. You can enable them in app settings.</string>
+
+    <!-- Accessibility -->
+    <string name="open_menu">Open menu</string>
+    <string name="notifications">Notifications</string>
+    <string name="add_module_description">Add Module</string>
+    <string name="view_calendar_description">View Calendar</string>
+
 </resources>
